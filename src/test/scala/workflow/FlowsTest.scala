@@ -23,7 +23,7 @@ Services.requests
    cb2(3)(Bal(124.5F))
    val cb3 = cb1(2)(Acct("alpha"))
    val bal:Bal = cb3(4)(Bal(124.5F))
-   Bal(1449.0F) must beEqualTo(bal)
+   Bal(249.0F) must beEqualTo(bal)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests)
   } 
 
