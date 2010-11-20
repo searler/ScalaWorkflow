@@ -7,5 +7,16 @@ object SingleLineBalance{
        acctLook(pn){a:Acct => balLook(a){b:Bal=>b}}
     }
 
+}
+
+object TwoLineBalance{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       var total = 1200F
+      // acctLook(pn){a:Acct => balLook(a){b:Bal=> total= total+ b.v; Bal(total)}}
+       acctLook(pn){a:Acct => balLook(a){b:Bal => total= total+ b.v; Bal(total)}} orElse acctLook(pn){a:Acct => balLook(a){b:Bal => total= total+ b.v; Bal(total)}}
+    }
+
+   
+
 
 }
