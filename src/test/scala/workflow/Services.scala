@@ -11,10 +11,12 @@ object Services{
   
 trait Lookup[A,R] {
   def apply[F](arg:A)(fn:R=>F):PartialFunction[Any,R=>F] 
+  def call[F](arg:A):Any 
 }
 
 trait RecordingLookup[A,R] extends Lookup[A,R]{
     def apply[F](arg:A)(fn:R=>F):PartialFunction[Any,R=>F] = {requestBuffer += arg;val CI = requestBuffer size ;{case CI => fn}}
+    def call[F](arg:A):Any = {requestBuffer += arg;val CI = requestBuffer size ; CI}
 }
 
 implicit object AccountLookup extends RecordingLookup[Num,Acct]
