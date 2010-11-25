@@ -9,10 +9,8 @@ object Services{
 
  def requests = { val l = requestBuffer toList;requestBuffer clear;l}
 
-type RR = PartialFunction[Int,Any=>RPF]   
 
- def cast[T](a:Any):T = a.asInstanceOf[T]
- def hider[T](f:T=>RPF):Any=>RPF = { a:Any=>f(cast(a))}
+ 
   
 trait Lookup[A,R] {
   def apply[F](arg:A)(fn:R =>RPF):RPF

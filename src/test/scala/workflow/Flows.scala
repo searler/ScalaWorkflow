@@ -9,8 +9,8 @@ object SingleLineBalance{
     }
 
 }
-/*
 
+/*
 object TwoLineBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
@@ -21,7 +21,7 @@ object TwoLineBalance{
 
    def concat[A,B,C,D](f:C=>D)(fa:(C=>Option[D])=>PartialFunction[A,B]*) = {
      var count = fa size
-     def counter(arg:C):Option[D] = {count-=1;if(count==0)Some(f(arg));  else {f(arg);None}}
+     def counter(arg:C):RPF = {count-=1;if(count==0)Some(f(arg));  else {f(arg);Done}}
      val prepped:Seq[PartialFunction[A,B]] = fa.map(pf=>pf(counter))
      new PartialFunctionCollection(prepped)
 
@@ -29,8 +29,8 @@ object TwoLineBalance{
 }
 
 
-} */
-/*
+} 
+
 object PrepaidAndBalance{
     def apply(pn:Num)( acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,BalanceLike], ppLook:Lookup[Acct,BalanceLike]) = {
        val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
