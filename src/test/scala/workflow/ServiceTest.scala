@@ -9,12 +9,12 @@ object ServicesTest extends Specification{
 
  "account lookup" in {
     Services.requests
-    val cb = AccountLookup(Num("123-555-1234")){a:Acct=>a}
+    val cb = AccountLookup(Num("123-555-1234"))(AccountReturn)
     
     val a = Acct("alpha")
-    val r:Acct = cb(1)(a)
+    val r:RPF = cb(1)(a)
 
-    a must beEqualTo(r)
+    a must beEqualTo(AccountReturn.get)
 
    List(Num("123-555-1234")) must beEqualTo(requests)
  } 
