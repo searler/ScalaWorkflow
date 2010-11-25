@@ -18,8 +18,8 @@ trait Lookup[A,R] {
 }
 
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def apply[F](arg:A)(fn:R =>RPF):RPF = {requestBuffer += arg;val CI = requestBuffer size ; new Wrapper(12,fn)}
-    def call[F](arg:A):Int = {requestBuffer += arg;val CI = requestBuffer size ; CI}
+    def apply[F](arg:A)(fn:R =>RPF):RPF = {requestBuffer += arg;new Wrapper(requestBuffer size,fn)}
+    def call[F](arg:A):Int = {requestBuffer += arg;requestBuffer size}
 }
 
 implicit object AccountLookup extends RecordingLookup[Num,Acct]

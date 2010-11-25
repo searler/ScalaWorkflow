@@ -10,27 +10,25 @@ object SingleLineBalance{
 
 }
 
-/*
+
 object TwoLineBalance{
-    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], result:End[Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-       concat(next)(
+       concat(next,result)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
 
-   def concat[A,B,C,D](f:C=>D)(fa:(C=>Option[D])=>PartialFunction[A,B]*) = {
+   def concat[A,B,C,D](f:C=>D, result:End[D])(fa:(C=>RPF)=>PartialFunction[A,B]*) = {
      var count = fa size
-     def counter(arg:C):RPF = {count-=1;if(count==0)Some(f(arg));  else {f(arg);Done}}
-     val prepped:Seq[PartialFunction[A,B]] = fa.map(pf=>pf(counter))
+     def counter(arg:C):RPF = {count-=1; println(count);if(count==0)result(f(arg));  else {f(arg);Done}}
+     val prepped:Seq[PartialFunction[A,B]] = fa.map(pf=>pf(counter _))
      new PartialFunctionCollection(prepped)
-
-    
-}
+   }
 
 
 } 
-
+/*
 object PrepaidAndBalance{
     def apply(pn:Num)( acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,BalanceLike], ppLook:Lookup[Acct,BalanceLike]) = {
        val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
