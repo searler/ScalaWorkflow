@@ -15,12 +15,12 @@ type RR = PartialFunction[Int,Any=>RPF]
  def hider[T](f:T=>RPF):Any=>RPF = { a:Any=>f(cast(a))}
   
 trait Lookup[A,R] {
-  def apply[F](arg:A)(fn:FRPF[R]):RR 
+  def apply[F](arg:A)(fn:R =>RPF):RPF
   def call[F](arg:A):Int 
 }
 
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def apply[F](arg:A)(fn:FRPF[R]):RR ={requestBuffer += arg;val CI = requestBuffer size ;{case CI => hider(fn)}}
+    def apply[F](arg:A)(fn:R =>RPF):RPF = {requestBuffer += arg;val CI = requestBuffer size ; new Wrapper(12,fn)}
     def call[F](arg:A):Int = {requestBuffer += arg;val CI = requestBuffer size ; CI}
 }
 
@@ -29,7 +29,7 @@ implicit object BalanceLookup extends RecordingLookup[Acct,Bal]
 
 
 
-class End[A] extends FRPF[A]{
+class End[A] extends Function1[A,RPF]{
    var v:Option[A] = None
    def apply(arg:A):RPF = {
        v = Some(arg)
