@@ -18,8 +18,16 @@ object TwoLineBalance{
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
+}
 
-
+object TwoLineBalanceDoubled{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], result:End[Bal]) = {
+       val  next = {var total = Bal(0);b:Bal => total += b;total}
+       val double = {b:Bal => result(b+b)}
+       PartialFunctionCollection.concat(next,double)(
+       c => acctLook(pn){a:Acct => balLook(a){c}} ,
+       c => acctLook(pn){a:Acct => balLook(a){c}})
+    }
 
 } 
 
