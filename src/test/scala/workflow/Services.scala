@@ -29,11 +29,6 @@ implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
 
 
 
-
-implicit object AccountReturn extends End[Acct]
-implicit object BalanceReturn extends End[Bal]
-implicit object PrepaidReturn extends End[List[BalanceLike]]
-
   
 
 }

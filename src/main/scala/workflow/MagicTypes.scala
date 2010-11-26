@@ -26,18 +26,22 @@ class Accum[A] extends Function1[A,A]{
    } 
 }
 */
-//## Test code
+
+case class Result[A](value:A) extends RPF{
+   def isDefinedAt(i:Int) = false
+   def apply(i:Int)= {case _ => Done}
+}
+
+object Result{
+   def apply[A](r:RPF):A = (r.asInstanceOf[Result[A]]).value
+}
+
 class End[A] extends Function1[A,RPF]{
-   var v:Option[A] = None
-   def apply(arg:A):RPF = {
-       v = Some(arg)
-        Done
-       }
-   def get:A = {
-     val r:A = v.get
-     v = None
-     r
-   }
+   def apply(arg:A):RPF =  new Result(arg)
+}
+
+object End{
+   def apply[A]()= new End[A]()
 }
 
 /*class Stop[A] extends FRPF[A]{
