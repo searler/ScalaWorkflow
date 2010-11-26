@@ -10,6 +10,15 @@ object SingleLineBalance{
 
 }
 
+object SingleLineBalanceAsTwo{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      val next = {a:Acct => a}
+      val result = {a:Acct => balLook(a)(BalanceReturn)}
+      PartialFunctionCollection.concat(next,result)(c => acctLook(pn)(c))
+    }
+
+}
+
 
 object TwoLineBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], result:End[Bal]) = {
