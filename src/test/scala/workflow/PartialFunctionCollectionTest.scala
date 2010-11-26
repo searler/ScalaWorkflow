@@ -3,7 +3,7 @@ package workflow
 import org.specs._
 
 object PartialFunctionCollectionTest extends Specification{
-
+/*
   "single" in {
      val pf:PartialFunction[String,String] = {case "xxx" =>"yyy"}
      val pfc:PartialFunction[String,String] = new PartialFunctionCollection(List(pf))
@@ -29,5 +29,5 @@ object PartialFunctionCollectionTest extends Specification{
      false must beEqualTo(pfc.isDefinedAt("not"))
       pfc("not") must throwA(new IllegalArgumentException("not"))
   }
-
+*/
 }

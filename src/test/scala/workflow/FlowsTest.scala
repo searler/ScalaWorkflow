@@ -42,6 +42,21 @@ Services.requests
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
   } 
 
+"twoLineBalanceEfficient" in {
+Services.requests
+ import Services._
+   val cb1 = TwoLineBalanceEfficient(Num("124-555-1234"))
+
+   val cb2 = cb1(1)(Acct("alpha"))
+    cb2(2)(Bal(124.5F))
+     cb2(3)(Bal(124.5F))
+    
+ 
+  Bal(249.0F) must beEqualTo(Services.BalanceReturn.get)
+  List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  } 
+
+
 "twoLineBalanceDoubled" in {
 Services.requests
  import Services._

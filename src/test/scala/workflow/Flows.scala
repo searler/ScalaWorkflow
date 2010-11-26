@@ -29,6 +29,17 @@ object TwoLineBalance{
     }
 }
 
+object TwoLineBalanceEfficient{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], result:End[Bal]) = {
+       val  next = {var total = Bal(0);b:Bal => total += b;total}
+       def  balances(a:Acct) = {PartialFunctionCollection.concat(next,result)(
+          c => balLook(a)(c) ,
+          c => balLook(a)(c) )
+       }
+       acctLook(pn)(balances)
+    }
+}
+
 object TwoLineBalanceDoubled{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], result:End[Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
