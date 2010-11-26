@@ -24,6 +24,7 @@ trait RecordingLookup[A,R] extends Lookup[A,R]{
 
 implicit object AccountLookup extends RecordingLookup[Num,Acct]
 implicit object BalanceLookup extends RecordingLookup[Acct,Bal]
+implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
 
 
 
@@ -42,6 +43,7 @@ class End[A] extends Function1[A,RPF]{
 
 implicit object AccountReturn extends End[Acct]
 implicit object BalanceReturn extends End[Bal]
+implicit object PrepaidReturn extends End[List[BalanceLike]]
 
   
 

@@ -28,22 +28,21 @@ object TwoLineBalance{
 
 
 } 
-/*
+
 object PrepaidAndBalance{
-    def apply(pn:Num)( acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,BalanceLike], ppLook:Lookup[Acct,BalanceLike]) = {
-       val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
-      
-      acctLook(pn){a:Acct => balLook(a){next}}  orElse
-       acctLook(pn){a:Acct => ppLook(a){next}}
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP], result:End[List[BalanceLike]]) = {
+      val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
+      concat(next,result)(
+        c => acctLook(pn){a:Acct => balLook(a){c}} ,
+        c => acctLook(pn){a:Acct => ppLook(a){c}})
     }
 
-   def concat[A,B,C <:BalanceLike](f:C=>List[C])(fa:(C=>Option[List[C]])=>PartialFunction[A,B]*) = {
+  def concat[A,B,C,D](f:C=>D, result:End[D])(fa:(C=>RPF)=>PartialFunction[A,B]*) = {
      var count = fa size
-     def counter(arg:C):Option[List[C]] = {count-=1;if(count==0)Some(f(arg));  else {f(arg);None}}
-     val prepped:Seq[PartialFunction[A,B]] = fa.map(pf=>pf(counter))
+     def counter(arg:C):RPF = {count-=1; println(count);if(count==0)result(f(arg));  else {f(arg);Done}}
+     val prepped:Seq[PartialFunction[A,B]] = fa.map(pf=>pf(counter _))
      new PartialFunctionCollection(prepped)
-}
-  
+   }
    
 
-} */
+} 
