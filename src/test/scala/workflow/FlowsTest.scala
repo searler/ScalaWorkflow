@@ -13,7 +13,9 @@ object FlowsTest extends Specification {
    import Services.balanceServer
    import Services.LookupActor
    import scala.actors.Actor._
-   val act = new FlowActor[Num]({n:Num => SingleLineBalance(n)(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer))})
+  // val act = new FlowActor[Num]({n:Num => SingleLineBalance(n)(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer))})
+   val creator = new SingleLineBalanceBuilder()(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer))
+ val act = new FlowActor[Num](creator)
    act.start
    
       act ! Num("124-555-1234")
