@@ -19,6 +19,7 @@ Services.requests
 
  "twoLineBalance" in {
 Services.requests
+ import Services._
    val cb1 = TwoLineBalance(Num("124-555-1234"))
 
    val cb2 = cb1(1)(Acct("alpha"))

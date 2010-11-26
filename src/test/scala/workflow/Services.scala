@@ -28,18 +28,7 @@ implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
 
 
 
-class End[A] extends Function1[A,RPF]{
-   var v:Option[A] = None
-   def apply(arg:A):RPF = {
-       v = Some(arg)
-        Done
-       }
-   def get:A = {
-     val r:A = v.get
-     v = None
-     r
-   }
-}
+
 
 implicit object AccountReturn extends End[Acct]
 implicit object BalanceReturn extends End[Bal]
