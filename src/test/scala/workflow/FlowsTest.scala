@@ -21,7 +21,7 @@ object FlowsTest extends Specification {
    act.start
    
       act ! Num("124-555-1234")
-      receiveWithin(100L){
+      receiveWithin(1000L){
        case b:Bal => b  must beEqualTo(Bal(124.5F))
        case scala.actors.TIMEOUT => fail("timeout")
        case _ @ x=> fail(x toString)
@@ -38,7 +38,7 @@ object FlowsTest extends Specification {
 Services.requests
    val cb1 = SingleLineBalance(Num("124-555-1234"))
    val cb2 = cb1(1333)(Acct("alpha")) //#############
-   val res:Bal = Result(cb2(2)(Bal(124.5F)))
+   val res:Bal = Extract(cb2(2)(Bal(124.5F)))
    Bal(124.5F) must beEqualTo(res)
    List(Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
   } 
@@ -48,7 +48,7 @@ Services.requests
 Services.requests
    val cb1 = SingleLineBalanceAsTwo(Num("124-555-1234"))
    val cb2 = cb1(1)(Acct("alpha"))
-   val res:Bal =Result(cb2(2)(Bal(124.5F)))
+   val res:Bal =Extract(cb2(2)(Bal(124.5F)))
    Bal(124.5F) must beEqualTo(res)
    List(Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
   } 
@@ -62,11 +62,28 @@ Services.requests
    val cb2 = cb1(1)(Acct("alpha"))
    val cb3 = cb1(2)(Acct("alpha"))
     cb2(3)(Bal(124.5F))
-   val res:Bal = Result( cb3(4)(Bal(124.5F)))
+   val res:Bal = Extract( cb3(4)(Bal(124.5F)))
     
  
   Bal(249.0F) must beEqualTo(res)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  } 
+
+"twoLineBalanceSequential" in {
+Services.requests
+ import Services._
+   val cb1 = TwoLineBalanceSequential(Num("124-555-1234"))
+   val cb2 = cb1(1)(Acct("alpha"))
+   val cb3 =  cb2(2)(Bal(124.5F))
+   val cb4  = cb3(3)(Acct("alpha"))
+   val cb5 =  cb4(4)(Bal(124.5F))
+
+   List(Num("124-555-1234"),Acct("alpha"),Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract( cb5)
+    
+ 
+  Bal(249.0F) must beEqualTo(res)
+ 
   } 
 
 "twoLineBalanceVarying" in {
@@ -77,7 +94,7 @@ Services.requests
    val cb2 = cb1(1)(Acct("alpha"))
    val cb3 = cb1(2)(Acct("alpha"))
     cb2(3)(Bal(124.5F))
-   val res:Bal = Result( cb3(4)(Bal(124.5F)))
+   val res:Bal = Extract( cb3(4)(Bal(124.5F)))
     
  
   Bal(373.5F) must beEqualTo(res)
@@ -92,7 +109,7 @@ Services.requests
    val cb2 = cb1(1)(Acct("alpha"))
    val cb3 = cb1(2)(Acct("alpha"))
     cb2(3)(Bal(124.5F))
-   val res:Bal = Result( cb3(4)(Bal(124.5F)))
+   val res:Bal = Extract( cb3(4)(Bal(124.5F)))
     
  
   Bal(249.0F) must beEqualTo(res)
@@ -109,7 +126,7 @@ Services.requests
 
    val cb2 = cb1(1)(Acct("alpha"))
     cb2(2)(Bal(124.5F))
-    val res:Bal =  Result(cb2(3)(Bal(124.5F)))
+    val res:Bal =  Extract(cb2(3)(Bal(124.5F)))
     
  
   Bal(249.0F) must beEqualTo(res)
@@ -126,7 +143,7 @@ Services.requests
    val cb2 = cb1(1)(Acct("alpha"))
    val cb3 = cb1(2)(Acct("alpha"))
     cb2(3)(Bal(124.5F))
-    val res:Bal = Result(cb3(4)(Bal(124.5F)))
+    val res:Bal = Extract(cb3(4)(Bal(124.5F)))
     
  
   Bal(498.0F) must beEqualTo(res)
@@ -142,7 +159,7 @@ Services.requests
    val cb3 = cb1(2)(Acct("alpha"))
    
    cb2(3)(Bal(124.5F))
-   val res:List[BalanceLike] = Result(cb3(4)(PP(124.5F)))
+   val res:List[BalanceLike] = Extract(cb3(4)(PP(124.5F)))
    
    List(Bal(124.5F), PP(124.5F)) must beEqualTo(res)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 

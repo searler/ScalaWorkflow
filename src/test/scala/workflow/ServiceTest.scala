@@ -14,10 +14,10 @@ object ServicesTest extends Specification{
     
     val a = Acct("alpha")
     val res = cb(1)(a)
-    val r:Acct = Result(res)
+    val r:Acct = Extract(res)
     a must beEqualTo(r)
 
-   val ra:Any = Result(res)
+   val ra:Any = Extract(res)
     a must beEqualTo(ra)
 
    

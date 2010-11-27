@@ -10,10 +10,27 @@ class SingleLineBalanceBuilder(implicit acctLook:Lookup[Num,Acct],  balLook:Look
 }
 
 object SingleLineBalance{
+    
+
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        acctLook(pn){a:Acct => balLook(a)(End)}
     }
 }
+/*
+object SingleLineBalancePipeline{
+object Functional {
+    class PipedObject[T] private[Functional] (value:T)
+    {
+        def |>[R] (f : T => R) = f(this.value)
+    }
+    implicit def toPiped[T] (value:T) = new PipedObject[T](value)
+    }
+
+     import Functional._
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       acctLook(pn) _|>{a:Acct => balLook(a) _} |> End
+    }
+}*/
 
 object SingleLineBalanceAsTwo{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
@@ -28,7 +45,7 @@ object TwoLineBalanceSumVar{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        var total = Bal(0)
        val  sum = {b:Bal => total += b}
-       PartialFunctionCollection.concat(sum,{x:Unit => End(total)})(
+       PartialFunctionCollection.concat(sum,Return(total))(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
@@ -42,6 +59,20 @@ object TwoLineBalanceVarying{
        c => acctLook(pn){a:Acct => balLook(a){b:Bal => c(b+b)}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
+}
+
+object TwoLineBalanceSequential{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       
+       acctLook(pn){
+         a:Acct => balLook(a){ 
+              b1:Bal => acctLook(pn){
+                a:Acct => balLook(a){
+                   b2:Bal => End(b1+b2)}
+              }
+         }
+      }
+  }
 }
 
 object TwoLineBalance{

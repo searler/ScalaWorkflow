@@ -32,8 +32,12 @@ case class Result[A](value:A) extends RPF{
    def apply(i:Int)= {case _ => Done}
 }
 
-object Result{
+object Extract{
    def apply[A](r:RPF):A = (r.asInstanceOf[Result[A]]).value
+}
+
+object Return{
+   def apply[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
 }
 
 

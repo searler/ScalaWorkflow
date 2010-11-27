@@ -32,7 +32,7 @@ object CorrelationAllocator{
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def apply[F](arg:A)(fn:R =>RPF):RPF = {val ci = CorrelationAllocator(); service ! (ci,arg); println("request",ci,arg);  new Wrapper(ci,fn)}
+    def apply[F](arg:A)(fn:R =>RPF):RPF = {val ci = CorrelationAllocator(); service ! (ci,arg);   new Wrapper(ci,fn)}
 }
 
 import scala.actors.Actor._
@@ -40,7 +40,7 @@ import scala.actors.Actor._
 val accountServer = actor {
    loop {
     react {
-        case (ci:Int,Num("124-555-1234")) => println("act response",ci);sender ! (ci,Acct("alpha"))
+        case (ci:Int,Num("124-555-1234")) => sender ! (ci,Acct("alpha"))
         case "exit" => exit
         case _ => println("unexpected")
     }
@@ -50,7 +50,7 @@ val accountServer = actor {
 val balanceServer = actor {
    loop {
     react {
-        case (ci:Int,Acct("alpha")) => println("bal response",ci); sender ! (ci,Bal(124.5F))
+        case (ci:Int,Acct("alpha")) =>  sender ! (ci,Bal(124.5F))
         case "exit" => exit
         case _ => println("unexpected")
     }
