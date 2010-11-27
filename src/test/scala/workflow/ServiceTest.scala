@@ -6,10 +6,11 @@ object ServicesTest extends Specification{
 
 
  import Services._
+ import EndObject._
 
  "account lookup" in {
     Services.requests
-    val cb = AccountLookup(Num("123-555-1234"))(End())
+    val cb = AccountLookup(Num("123-555-1234"))(End)
     
     val a = Acct("alpha")
     val res = cb(1)(a)

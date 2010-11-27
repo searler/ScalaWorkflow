@@ -36,12 +36,10 @@ object Result{
    def apply[A](r:RPF):A = (r.asInstanceOf[Result[A]]).value
 }
 
-class End[A] extends Function1[A,RPF]{
-   def apply(arg:A):RPF =  new Result(arg)
-}
 
-object End{
-   def apply[A]()= new End[A]()
+
+object EndObject{
+   def End[A](arg:A):RPF =  new Result(arg)
 }
 
 /*class Stop[A] extends FRPF[A]{
