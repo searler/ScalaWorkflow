@@ -65,10 +65,25 @@ object TwoLineBalanceSequential{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        
        acctLook(pn){
-         a:Acct => balLook(a){ 
+         balLook(_){ 
               b1:Bal => acctLook(pn){
-                a:Acct => balLook(a){
+                balLook(_){
                    b2:Bal => End(b1+b2)}
+              }
+         }
+      }
+  }
+}
+
+object TwoLineBalanceSequentialOptimized{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       acctLook(pn){
+         a:Acct => 
+         balLook(a){ 
+              b1:Bal => {
+                balLook(a){
+                   b2:Bal => End(b1+b2)
+                }
               }
          }
       }

@@ -86,6 +86,22 @@ Services.requests
  
   } 
 
+"twoLineBalanceSequentialOptimized" in {
+Services.requests
+ import Services._
+   val cb1 = TwoLineBalanceSequentialOptimized(Num("124-555-1234"))
+   val cb2 = cb1(1)(Acct("alpha"))
+   val cb3 =  cb2(2)(Bal(124.5F))
+   val cb4=  cb3(3)(Bal(124.5F))
+
+   List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract( cb4)
+    
+ 
+  Bal(249.0F) must beEqualTo(res)
+ 
+  } 
+
 "twoLineBalanceVarying" in {
 Services.requests
  import Services._
