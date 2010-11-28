@@ -37,10 +37,12 @@ object FlowsTest extends Specification {
   "oneLineBalance" in {
 Services.requests
    val cb1 = SingleLineBalance(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
    val cb2 = cb1(1333)(Acct("alpha")) //#############
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
    val res:Bal = Extract(cb2(2)(Bal(124.5F)))
    Bal(124.5F) must beEqualTo(res)
-   List(Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
   } 
 
 
@@ -58,9 +60,11 @@ Services.requests
 Services.requests
  import Services._
    val cb1 = TwoLineBalance(Num("124-555-1234"))
-
+   List(Num("124-555-1234"),Num("124-555-1234")) must beEqualTo(Services.requests) 
    val cb2 = cb1(1)(Acct("alpha"))
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
    val cb3 = cb1(2)(Acct("alpha"))
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
     cb2(3)(Bal(124.5F))
    val res:Bal = Extract( cb3(4)(Bal(124.5F)))
     
