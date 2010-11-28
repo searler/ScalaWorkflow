@@ -70,7 +70,7 @@ Services.requests
     
  
   Bal(249.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
   } 
 
 "twoLineBalanceSequential" in {
