@@ -10,15 +10,18 @@ object Services{
  def requests = { val l = requestBuffer toList;requestBuffer clear;l}
 
 
+ class CI(ci:Int){
+   def apply[R](fn:R =>RPF):RPF = new Wrapper(ci,fn)
+ }
  
   
 trait Lookup[A,R] {
-  def apply[F](arg:A)(fn:R =>RPF):RPF
+  def apply(arg:A):CI
  // def call[F](arg:A):Int 
 }
 
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def apply[F](arg:A)(fn:R =>RPF):RPF = {requestBuffer += arg;new Wrapper(requestBuffer size,fn)}
+    def apply(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer size)}
   //  def call[F](arg:A):Int = {requestBuffer += arg;requestBuffer size}
 }
 
@@ -32,7 +35,7 @@ object CorrelationAllocator{
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def apply[F](arg:A)(fn:R =>RPF):RPF = {val ci = CorrelationAllocator(); service ! (ci,arg);   new Wrapper(ci,fn)}
+    def apply(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   new CI(ci)}
 }
 
 import scala.actors.Actor._
