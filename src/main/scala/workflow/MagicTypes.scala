@@ -4,6 +4,9 @@ package workflow
 
 trait RPF extends PartialFunction[Int, Any=>RPF]
 
+case class CI(ci:Int){
+   def apply[R](fn:R =>RPF):RPF = new Wrapper(ci,fn)
+ }
 
 
 object Done extends RPF{

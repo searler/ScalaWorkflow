@@ -32,7 +32,28 @@ object FlowsTest extends Specification {
    
   } 
 
+  "accountPipeline" in {
+Services.requests
+   val cb1 = accountPipeline(Num("124-555-1234"))
+
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(1333)(Acct("alpha")) //#############
+   val res:Acct = Extract(cb2)
+   Acct("alpha") must beEqualTo(res)
+  } 
+
+
+  "balancePipeline" in {
+Services.requests
+   val cb1 = balancePipeline(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(1333)(Acct("alpha")) //#############
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract(cb2(2)(Bal(124.5F)))
+   Bal(249F) must beEqualTo(res)
   
+  } 
+
 
   "oneLineBalance" in {
 Services.requests

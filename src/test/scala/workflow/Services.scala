@@ -10,9 +10,7 @@ object Services{
  def requests = { val l = requestBuffer toList;requestBuffer clear;l}
 
 
- class CI(ci:Int){
-   def apply[R](fn:R =>RPF):RPF = new Wrapper(ci,fn)
- }
+ 
  
   
 trait Lookup[A,R] {
