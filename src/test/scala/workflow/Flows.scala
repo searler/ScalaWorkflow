@@ -9,6 +9,14 @@ class SingleLineBalanceBuilder(implicit acctLook:Lookup[Num,Acct],  balLook:Look
 
 }
 
+object minimalPipeline{
+
+    implicit def rpf[A](fn:A=>RPF) = new WRPF(fn)
+
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
+        acctLook(pn)|: Term
+    }
+}
 
 object accountPipeline{
 
@@ -22,10 +30,27 @@ object accountPipeline{
 object balancePipeline{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
         
+       acctLook(pn)|:{balLook(_)} |: Term
+    }
+}
+
+object balanceExtendedPipeline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
+        
        acctLook(pn)|:{a:Acct=> a}|:{balLook(_)} |: {b:Bal=>b+b} |: Term
     }
 }
 
+/*
+object TwoLineBalanceSequentialPipeline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       var b1:Bal = Bal(0);
+       var a:Acct = Acct("")
+       acctLook(pn) |:{x:Acct => a=x; balLook(a)}||:{b:Bal => b1=b;balLook(a)}|:{b2:Bal => b1+b2} |: Term
+        
+  }
+}
+*/
 
 
 object SingleLineBalance{
@@ -63,6 +88,8 @@ object TwoLineBalanceVarying{
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
 }
+
+
 
 object TwoLineBalanceSequential{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {

@@ -34,6 +34,7 @@ class Wrapper[T](correlated:Int,fn:T=>RPF) extends RPF{
    class WRPF[A](fn:A=>RPF){
       def |:(ci:CI) = new Wrapper(ci.ci,fn)
       def |:[T](g:T=>A) = new WRPF({t:T => fn(g(t))})
+      
    }
 
    class TF[T,R](fn:T=>R){

@@ -32,6 +32,16 @@ object FlowsTest extends Specification {
    
   } 
 
+ "minimalPipeline" in {
+Services.requests
+   val cb1 = minimalPipeline(Num("124-555-1234"))
+
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(1333)(Acct("alpha")) //#############
+   val res:Acct = Extract(cb2)
+   Acct("alpha") must beEqualTo(res)
+  } 
+
   "accountPipeline" in {
 Services.requests
    val cb1 = accountPipeline(Num("124-555-1234"))
@@ -46,6 +56,17 @@ Services.requests
   "balancePipeline" in {
 Services.requests
    val cb1 = balancePipeline(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(1333)(Acct("alpha")) //#############
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract(cb2(2)(Bal(124.5F)))
+   Bal(124.5F) must beEqualTo(res)
+  
+  } 
+
+ "balanceExtemdedPipeline" in {
+Services.requests
+   val cb1 = balanceExtendedPipeline(Num("124-555-1234"))
    List(Num("124-555-1234")) must beEqualTo(Services.requests)  
    val cb2 = cb1(1333)(Acct("alpha")) //#############
    List(Acct("alpha")) must beEqualTo(Services.requests) 
@@ -110,6 +131,20 @@ Services.requests
   Bal(249.0F) must beEqualTo(res)
  
   } 
+/*
+"twoLineBalanceSequentialPipeline" in {
+Services.requests
+ import Services._
+   val cb1 = TwoLineBalanceSequentialPipeline(Num("124-555-1234"))
+   val cb2 = cb1(1)(Acct("alpha"))
+   val cb3 =  cb2(2)(Bal(124.5F))
+   val cb4=  cb3(3)(Bal(124.5F))
+
+   List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract( cb4)
+ 
+  } 
+*/
 
 "twoLineBalanceSequentialOptimized" in {
 Services.requests
@@ -119,11 +154,12 @@ Services.requests
    val cb3 =  cb2(2)(Bal(124.5F))
    val cb4=  cb3(3)(Bal(124.5F))
 
-   List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
    val res:Bal = Extract( cb4)
     
  
   Bal(249.0F) must beEqualTo(res)
+ List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
  
   } 
 
