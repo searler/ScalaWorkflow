@@ -34,6 +34,33 @@ object balancePipeline{
     }
 }
 
+object threePipeline{
+    def apply(i:Int)(implicit  numLook:Lookup[Int,Num],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
+        
+       numLook(i) |: {acctLook(_)}|:{balLook(_)} |: Term
+    }
+}
+
+object accountMismatchPipeline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct]):RPF = {
+        
+       acctLook(pn)|:{ignored:Acct =>acctLook(pn)} |: Term
+    }
+}
+
+object accountMismatchBalancePipeline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
+        
+       acctLook(pn)|:{ignored:Acct =>acctLook(pn)} |: {balLook(_)} |: Term
+    }
+}
+
+object accountMismatchExtendedPipeline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct]):RPF = {
+       acctLook(pn)|:{ignored:Acct =>acctLook(pn)}|: {a:Acct => println("##################"); Acct("xxx")} |: Term
+    }
+}
+
 object balanceExtendedPipeline{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
         

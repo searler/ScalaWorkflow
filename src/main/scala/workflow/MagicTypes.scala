@@ -1,6 +1,11 @@
 package workflow
 
 
+trait Lookup[A,R] {
+  def apply(arg:A):CI
+  
+}
+
 
 trait RPF extends PartialFunction[Int, Any=>RPF]
 
@@ -33,12 +38,16 @@ class Wrapper[T](correlated:Int,fn:T=>RPF) extends RPF{
 
    class WRPF[A](fn:A=>RPF){
       def |:(ci:CI) = new Wrapper(ci.ci,fn)
-      def |:[T](g:T=>A) = new WRPF({t:T => fn(g(t))})
-      
+      def |:[T,S](g:T=>S):WRPF[T] = { g match{
+                 case fci:Function1[T,CI] => new WRPF({t:T => new Wrapper(fci(t).ci,fn)})
+                 case q:Function1[T,A] => new WRPF({t:T => fn(q(t))})
+          }
+      }
+    
    }
 
    class TF[T,R](fn:T=>R){
-     def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,{a:T => EndObject.End(fn(a))})})
+     def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,{a:T => println("TF",a); EndObject.End(fn(a))})})
      def |:(c:CI) = new Wrapper(c.ci,{a:T => EndObject.End(fn(a))})
    }
 

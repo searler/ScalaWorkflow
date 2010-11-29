@@ -34,6 +34,7 @@ object FlowsTest extends Specification {
 
  "minimalPipeline" in {
 Services.requests
+   import Services._
    val cb1 = minimalPipeline(Num("124-555-1234"))
 
    List(Num("124-555-1234")) must beEqualTo(Services.requests)  
@@ -43,6 +44,7 @@ Services.requests
   } 
 
   "accountPipeline" in {
+ import Services._
 Services.requests
    val cb1 = accountPipeline(Num("124-555-1234"))
 
@@ -52,9 +54,45 @@ Services.requests
    Acct("alpha") must beEqualTo(res)
   } 
 
+"accountMismatchPipeline" in {
+ import Services._
+Services.requests
+   val cb1 = accountMismatchPipeline(Num("124-555-1234"))
+  
+   val cb2 = cb1(1333)(Acct("alpha")) 
+   val cb3 = cb2(1333)(Acct("beta")) 
+   val res:Acct = Extract(cb3)
+   Acct("beta") must beEqualTo(res)
+ List(Num("124-555-1234"),Num("124-555-1234")) must beEqualTo(Services.requests)  
+  } 
+
+"accountMismatchBalancePipeline" in {
+Services.requests
+ import Services._
+   val cb1 = accountMismatchBalancePipeline(Num("124-555-1234"))
+  
+   val cb2 = cb1(1333)(Acct("alpha")) 
+   val cb3 = cb2(1333)(Acct("beta")) 
+    val res:Bal = Extract(cb3(2)(Bal(124.5F)))
+   Bal(124.5F) must beEqualTo(res)
+  } 
+
+"accountMismatchExtendedPipeline" in {
+Services.requests
+ import Services._
+   val cb1 = accountMismatchPipeline(Num("124-555-1234"))
+  
+   val cb2 = cb1(1333)(Acct("gamma")) 
+   val cb3 = cb2(1333)(Acct("beta")) 
+   val res:Acct = Extract(cb3)
+//   Acct("xxx") must beEqualTo(res) ##
+ List(Num("124-555-1234"),Num("124-555-1234")) must beEqualTo(Services.requests)  
+  } 
+
 
   "balancePipeline" in {
 Services.requests
+ import Services._
    val cb1 = balancePipeline(Num("124-555-1234"))
    List(Num("124-555-1234")) must beEqualTo(Services.requests)  
    val cb2 = cb1(1333)(Acct("alpha")) //#############
@@ -64,7 +102,7 @@ Services.requests
   
   } 
 
- "balanceExtemdedPipeline" in {
+/** ##  "balanceExtemdedPipeline" in {
 Services.requests
    val cb1 = balanceExtendedPipeline(Num("124-555-1234"))
    List(Num("124-555-1234")) must beEqualTo(Services.requests)  
@@ -74,10 +112,11 @@ Services.requests
    Bal(249F) must beEqualTo(res)
   
   } 
-
+*/
 
   "oneLineBalance" in {
 Services.requests
+ import Services._
    val cb1 = SingleLineBalance(Num("124-555-1234"))
    List(Num("124-555-1234")) must beEqualTo(Services.requests)  
    val cb2 = cb1(1333)(Acct("alpha")) //#############
@@ -90,6 +129,7 @@ Services.requests
 
  "oneLineBalanceAsTwo" in {
 Services.requests
+ import Services._
    val cb1 = SingleLineBalanceAsTwo(Num("124-555-1234"))
    val cb2 = cb1(1)(Acct("alpha"))
    val res:Bal =Extract(cb2(2)(Bal(124.5F)))

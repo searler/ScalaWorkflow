@@ -13,16 +13,12 @@ object Services{
  
  
   
-trait Lookup[A,R] {
-  def apply(arg:A):CI
- // def call[F](arg:A):Int 
-}
-
 trait RecordingLookup[A,R] extends Lookup[A,R]{
     def apply(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer size)}
   //  def call[F](arg:A):Int = {requestBuffer += arg;requestBuffer size}
 }
 
+implicit object NumLookup extends RecordingLookup[Int,Num]
 implicit object AccountLookup extends RecordingLookup[Num,Acct]
 implicit object BalanceLookup extends RecordingLookup[Acct,Bal]
 implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
