@@ -19,6 +19,28 @@ class Wrapper[T](correlated:Int,fn:T=>RPF) extends RPF{
     def apply(i:Int)=  { a:Any=>fn(a.asInstanceOf[T])}
     override def toString = "("+correlated+ "=>" + fn +")"
 }
+
+
+ object Term{
+    def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,EndObject.End)})
+    def |:(c:CI) = new Wrapper(c.ci,EndObject.End)
+    def |:[A,B](fn:A=>B) = new TF(fn)
+   }
+
+   class WFCI[A](fn:A=>CI){
+      def apply(a:A) = fn(a)
+   }
+
+   class WRPF[A](fn:A=>RPF){
+      def |:(ci:CI) = new Wrapper(ci.ci,fn)
+      def |:[T](g:T=>A) = new WRPF({t:T => fn(g(t))})
+   }
+
+   class TF[T,R](fn:T=>R){
+     def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,{a:T => EndObject.End(fn(a))})})
+     def |:(c:CI) = new Wrapper(c.ci,{a:T => EndObject.End(fn(a))})
+   }
+
 /*
 class Accum[A] extends Function1[A,A]{
    type summable = {def +=(a:A):A}

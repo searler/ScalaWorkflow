@@ -12,21 +12,6 @@ class SingleLineBalanceBuilder(implicit acctLook:Lookup[Num,Acct],  balLook:Look
 
 object accountPipeline{
 
-   object Term{
-    def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,End)})
-    def |:(c:CI) = new Wrapper(c.ci,End)
-   }
-
-   class WFCI[A](fn:A=>CI){
-      def apply(a:A) = fn(a)
-     // def |:(ci:CI) =this
-   }
-
-   class WRPF[A](fn:A=>RPF){
-      def |:(ci:CI) = new Wrapper(ci.ci,fn)
-   }
-    
-   // implicit def fci[A](fn:A=>CI) = new WFCI(fn)
     implicit def rpf[A](fn:A=>RPF) = new WRPF(fn)
 
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
@@ -36,25 +21,7 @@ object accountPipeline{
 
 object balancePipeline{
 
-   object Term{
-    def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,End)})
-    def |:(c:CI) = new Wrapper(c.ci,End)
-    def |:[A,B](fn:A=>B) = new TF(fn)
-   }
-
-   class WFCI[A](fn:A=>CI){
-      def apply(a:A) = fn(a)
-   }
-
-   class WRPF[A](fn:A=>RPF){
-      def |:(ci:CI) = new Wrapper(ci.ci,fn)
-      def |:[T](g:T=>A) = new WRPF({t:T => fn(g(t))})
-   }
-
-   class TF[T,R](fn:T=>R){
-     def |:[A](fci:A=>CI):WRPF[A]= new WRPF({a:A => new Wrapper(fci(a).ci,{a:T => End(fn(a))})})
-     def |:(c:CI) = new Wrapper(c.ci,{a:T => End(fn(a))})
-   }
+  
     
  
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
