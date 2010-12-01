@@ -22,7 +22,7 @@ object SingleLineBalanceAsTwo{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val fun = {a:Acct => a}
       val next = {a:Acct => balLook(a)(End)}
-      PartialFunctionCollection.concat(fun,next)(c => acctLook(pn)(c))
+      RPFCollection.concat(fun,next)(c => acctLook(pn)(c))
     }
 
 }
@@ -31,7 +31,7 @@ object TwoLineBalanceSumVar{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        var total = Bal(0)
        val  sum = {b:Bal => total += b}
-       PartialFunctionCollection.concat(sum,Return(total))(
+       RPFCollection.concat(sum,Return(total))(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
@@ -41,7 +41,7 @@ object TwoLineBalanceSumVar{
 object TwoLineBalanceVarying{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-       PartialFunctionCollection.concat(next,End)(
+       RPFCollection.concat(next,End)(
        c => acctLook(pn){a:Acct => balLook(a){b:Bal => c(b+b)}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
@@ -81,7 +81,7 @@ object TwoLineBalanceSequentialOptimized{
 object TwoLineBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-       PartialFunctionCollection.concat(next,End)(
+       RPFCollection.concat(next,End)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
@@ -90,7 +90,7 @@ object TwoLineBalance{
 object TwoLineBalanceEfficient{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-        acctLook(pn){a:Acct=>PartialFunctionCollection.concat(next,End)(
+        acctLook(pn){a:Acct=>RPFCollection.concat(next,End)(
           c => balLook(a)(c) ,
           c => balLook(a)(c) )
        }
@@ -102,7 +102,7 @@ object TwoLineBalanceDoubled{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
        val next = {b:Bal => End(b+b)}
-       PartialFunctionCollection.concat(sum,next)(
+       RPFCollection.concat(sum,next)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
        c => acctLook(pn){a:Acct => balLook(a){c}})
     }
@@ -112,7 +112,7 @@ object TwoLineBalanceDoubled{
 object PrepaidAndBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) = {
       val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
-      PartialFunctionCollection.concat(next,End)(
+      RPFCollection.concat(next,End)(
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
         c => acctLook(pn){a:Acct => ppLook(a){c}})
     }
