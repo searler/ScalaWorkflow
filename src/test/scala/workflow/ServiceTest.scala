@@ -13,7 +13,7 @@ object ServicesTest extends Specification{
     val cb = AccountLookup(Num("123-555-1234"))(End)
     
     val a = Acct("alpha")
-    val res = cb(1)(a)
+    val res = cb(CI("1"))(a)
     val r:Acct = Extract(res)
     a must beEqualTo(r)
 

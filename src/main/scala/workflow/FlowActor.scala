@@ -6,14 +6,14 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
   def act(){
      loop {
      react {
-       case (ci:Int,r:Any) => process(ci,r) 
+       case (ci:CI,r:Any) => process(ci,r) 
        case arg:A => originator = sender;pfs = flow(arg) :: pfs; 
        case _ @ x=> println("unexpected",x)
      }
    }
   }
 
-  def process(ci:Int,in:Any){
+  def process(ci:CI,in:Any){
      val out = (pfs.filter(pf=>pf.isDefinedAt(ci))).head.apply(ci)(in)
      out match {
         case r:Result[_] => originator ! Extract(r); exit

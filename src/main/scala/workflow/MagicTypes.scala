@@ -2,27 +2,26 @@ package workflow
 
 
 trait Lookup[A,R] {
-  def apply(arg:A)(fn:R =>RPF):RPF = new Wrapper(call(arg).ci,fn)
+  def apply(arg:A)(fn:R =>RPF):RPF = new Wrapper(call(arg),fn)
   def call(arg:A):CI
 }
 
 
-trait RPF extends PartialFunction[Int, Any=>RPF]
+trait RPF extends PartialFunction[CI, Any=>RPF]
 
-case class CI(ci:Int){
-   def apply[R](fn:R =>RPF):RPF = new Wrapper(ci,fn)
+case class CI(s:String){
+   def apply[R](fn:R =>RPF):RPF = new Wrapper(this,fn)
  }
 
 
 object Done extends RPF{
-   def isDefinedAt(i:Int) = false
-   def apply(i:Int)= {case _ => Done}
+   def isDefinedAt(ci:CI) = false
+   def apply(i:CI)= {case _ => Done}
 }
 
-class Wrapper[T](correlated:Int,fn:T=>RPF) extends RPF{
-    def isDefinedAt(i:Int) = i==correlated
-    def apply(i:Int)=  { a:Any=>fn(a.asInstanceOf[T])}
-    override def toString = "("+correlated+ "=>" + fn +")"
+class Wrapper[T](correlated:CI,fn:T=>RPF) extends RPF{
+    def isDefinedAt(ci:CI) = ci == correlated
+    def apply(ci:CI)=  { a:Any=>fn(a.asInstanceOf[T])}
 }
 
 
@@ -38,8 +37,8 @@ class Accum[A] extends Function1[A,A]{
 */
 
 case class Result[A](value:A) extends RPF{
-   def isDefinedAt(i:Int) = false
-   def apply(i:Int)= {case _ => Done}
+   def isDefinedAt(ci:CI) = false
+   def apply(ci:CI)= {case _ => Done}
 }
 
 object Extract{
@@ -56,18 +55,3 @@ object EndObject{
    def End[A](arg:A):RPF =  new Result(arg)
 }
 
-/*class Stop[A] extends FRPF[A]{
-   def apply(a:A):RPF= Done
-}
-*/
-
-/*
-def cast[T](a:Any):T = a.asInstanceOf[T]
-def hider[T](f:T=>RPF):Any=>RPF = { a:Any=>f(cast(a))}
-
-def look[A,R](a:A)(f:R=>RPF):PartialFunction[String,Any=>RPF] = {case "xx" => hider(f) }
-
-
-//def look[A,R](a:A)(f:R=>RPF):PartialFunction[String,R=>RPF] = {case "xx" => f }
-
-*/

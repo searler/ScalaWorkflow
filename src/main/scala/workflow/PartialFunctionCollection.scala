@@ -1,11 +1,11 @@
 package workflow
 
 case class PartialFunctionCollection(list:Seq[RPF]) extends RPF{
-  def isDefinedAt(x: Int): Boolean = list.exists(pf=>pf.isDefinedAt(x))
-  def apply(x:Int):Any=>RPF = try {
-                          (list.filter(pf=>pf.isDefinedAt(x))).head.apply(x)
+  def isDefinedAt(ci: CI): Boolean = list.exists(pf=>pf.isDefinedAt(ci))
+  def apply(ci:CI):Any=>RPF = try {
+                          (list.filter(pf=>pf.isDefinedAt(ci))).head.apply(ci)
                       }catch{
-                        case _ => throw new IllegalArgumentException(x.toString)
+                        case _ => throw new IllegalArgumentException(ci toString)
                       }
   override def toString = list.toString
 }

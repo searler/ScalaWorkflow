@@ -9,13 +9,9 @@ object Services{
 
  def requests = { val l = requestBuffer toList;requestBuffer clear;l}
 
-
- 
- 
   
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer size)}
-  //  def call[F](arg:A):Int = {requestBuffer += arg;requestBuffer size}
+    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer.size.toString)}
 }
 
 implicit object NumLookup extends RecordingLookup[Int,Num]
@@ -25,11 +21,11 @@ implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
 
 object CorrelationAllocator{
    val id = new java.util.concurrent.atomic.AtomicInteger
-   def apply() = id incrementAndGet
+   def apply() = CI(id.incrementAndGet.toString)
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   new CI(ci)}
+    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   ci}
 }
 
 import scala.actors.Actor._
@@ -37,9 +33,9 @@ import scala.actors.Actor._
 val accountServer = actor {
    loop {
     react {
-        case (ci:Int,Num("124-555-1234")) => sender ! (ci,Acct("alpha"))
+        case (ci:CI,Num("124-555-1234")) => sender ! (ci,Acct("alpha"))
         case "exit" => exit
-        case _ => println("unexpected")
+        case _ @ x => println("unexpected accountServer",x)
     }
   }
 }
@@ -47,9 +43,9 @@ val accountServer = actor {
 val balanceServer = actor {
    loop {
     react {
-        case (ci:Int,Acct("alpha")) =>  sender ! (ci,Bal(124.5F))
+        case (ci:CI,Acct("alpha")) =>  sender ! (ci,Bal(124.5F))
         case "exit" => exit
-        case _ => println("unexpected")
+        case _ @ x => println("unexpected balanceServer",x)
     }
   }
 }
