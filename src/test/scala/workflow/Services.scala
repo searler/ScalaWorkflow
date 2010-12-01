@@ -14,7 +14,7 @@ object Services{
  
   
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def apply(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer size)}
+    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer size)}
   //  def call[F](arg:A):Int = {requestBuffer += arg;requestBuffer size}
 }
 
@@ -29,7 +29,7 @@ object CorrelationAllocator{
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def apply(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   new CI(ci)}
+    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   new CI(ci)}
 }
 
 import scala.actors.Actor._
