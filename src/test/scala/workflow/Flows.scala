@@ -109,6 +109,18 @@ object TwoLineBalanceDoubled{
 
 } 
 
+
+object TwoLineBalanceDoubledInline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       val  sum = {var total = Bal(0);b:Bal => total += b;total}
+       val next = {b:Bal => End(b)}
+       RPFCollection.concat(sum,next)(
+       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}} ,
+       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}})
+    }
+
+} 
+
 object PrepaidAndBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) = {
       val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
