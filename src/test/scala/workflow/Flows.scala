@@ -142,6 +142,41 @@ object SingleLineBalanceOrEnd{
 }
 
 
+
+object exclusiveSplitJoinVar{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+
+     var result:Bal = Bal(0F)
+
+     def end = {End(result)}
+     def next = {b:Bal => result = b;println(result);end}
+    
+  
+      acctLook(pn){_ match {
+          case Acct("alpha")  => balLook(Acct("alpha"))(next)
+          case _ @ a => balLook(a)(next)
+       }
+    }
+  }
+}
+
+
+object exclusiveSplitJoin{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+
+      val end = {b:Bal => End(b+b)}
+     val next = {b:Bal => end(b)}
+    
+  
+      acctLook(pn){_ match {
+          case Acct("alpha")  => balLook(Acct("alpha"))(next)
+          case _ @ a => balLook(a)(next)
+       }
+    }
+  }
+}
+
+
 object SingleLineBalanceAsPartial{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val fun = {a:Acct => a}
