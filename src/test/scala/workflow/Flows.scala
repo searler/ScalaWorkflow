@@ -128,7 +128,41 @@ object PrepaidAndBalance{
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
         c => acctLook(pn){a:Acct => ppLook(a){c}})
     }
+}
 
- 
+object SingleLineBalanceOrEnd{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+  
+      acctLook(pn){_ match {
+          case Acct("alpha")  => balLook(Acct("alpha"))(End)
+          case _ @ a => balLook(a)(End)
+       }
+    }
+  }
+}
 
-} 
+
+object SingleLineBalanceAsPartial{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      val fun = {a:Acct => a}
+      val next = {a:Acct => balLook(a)(End)}
+      RPFCollection.concat(fun,next)( acctLook(pn)_)
+    }
+
+}
+
+/*
+object SingleLineBalanceOr{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      val code =12
+      acctLook(pn){code match {
+          case 12  => { a => balLook(a) _}
+          case _ => {a => balLook(a) _}
+       }
+    } andThen End
+  }
+}
+
+
+ */
+

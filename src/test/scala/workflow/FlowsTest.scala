@@ -44,6 +44,32 @@ Services.requests
   
   } 
 
+"oneLineBalanceAsPartial" in {
+Services.requests
+ import Services._
+   val cb1 = SingleLineBalanceAsPartial(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(CI("1"))(Acct("alpha")) //#############
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
+   Bal(124.5F) must beEqualTo(res)
+  
+  } 
+
+
+"oneLineBalanceOrEnd" in {
+Services.requests
+ import Services._
+   val cb1 = SingleLineBalanceOrEnd(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(CI("1"))(Acct("alpha")) //#############
+   List(Acct("alpha")) must beEqualTo(Services.requests) 
+   val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
+   Bal(124.5F) must beEqualTo(res)
+  
+  } 
+
+
 
  "oneLineBalanceAsTwo" in {
 Services.requests
