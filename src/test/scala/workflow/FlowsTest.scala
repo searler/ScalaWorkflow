@@ -6,9 +6,6 @@ import org.specs._
 
 object FlowsTest extends Specification {
 
-
-
-
   "oneLineBalanceActor" in {
    import Services.accountServer
    import Services.balanceServer
@@ -25,10 +22,6 @@ object FlowsTest extends Specification {
        case scala.actors.TIMEOUT => fail("timeout")
        case _ @ x=> fail(x toString)
       }
-   
-    
-   
-   
   } 
 
 
@@ -249,11 +242,8 @@ Services.requests
 Services.requests
  import Services._
    val cb1 = exclusiveSplitJoinVar(Num("124-555-1234"))
-
-   
    val cb3 = cb1(CI("2"))(Acct("alpha"))
-  
-    val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
+   val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
     
  
   Bal(124.5F) must beEqualTo(res)

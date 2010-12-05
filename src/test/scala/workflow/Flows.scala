@@ -149,7 +149,7 @@ object exclusiveSplitJoinVar{
      var result:Bal = Bal(0F)
 
      def end = {End(result)}
-     def next = {b:Bal => result = b;println(result);end}
+     def next = {b:Bal => result = b;end}
     
   
       acctLook(pn){_ match {
