@@ -279,4 +279,17 @@ Services.requests
 
 
 
+
+  "SingleLineBalanceOr" in {
+Services.requests
+ import Services._
+   val cb1 = SingleLineBalanceOr(Num("124-555-1234"))
+   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
+   val cb2 = cb1(CI("1333"))(Acct("alpha")) //#############
+  List(Acct("alpha")) must beEqualTo(Services.requests) 
+  val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
+ Bal(124.5F) must beEqualTo(res)
+  
+  } 
+
 }

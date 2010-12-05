@@ -181,23 +181,23 @@ object SingleLineBalanceAsPartial{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val fun = {a:Acct => a}
       val next = {a:Acct => balLook(a)(End)}
-      RPFCollection.concat(fun,next)( acctLook(pn)_)
+      RPFCollection.concat(fun,next)( acctLook(pn))
     }
 
 }
 
-/*
+
 object SingleLineBalanceOr{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val code =12
       acctLook(pn){code match {
-          case 12  => { a => balLook(a) _}
-          case _ => {a => balLook(a) _}
-       }
-    } andThen End
+          case 12  => {balLook(_)(End)}
+          case _ => {balLook(_) (End)}
+       } 
+    }
   }
 }
 
 
- */
+ 
 
