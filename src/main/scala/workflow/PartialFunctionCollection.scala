@@ -16,4 +16,17 @@ object RPFCollection{
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
      new RPFCollection( fa.map(pf=>pf(counter _)))
    }
+
+   def first[C](fa:(C=>RPF)=>RPF*)(result:Function1[C,RPF]) = {
+     var found = false
+     def counter(arg:C):RPF = {if(found) {Done}; else {found = true;result(arg)}}
+     new RPFCollection( fa.map(pf=>pf(counter _)))
+   }
+
+    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:Function1[List[C],RPF]) = {
+     val buffer = new scala.collection.mutable.ListBuffer[C]() 
+     def counter(arg:C):RPF = {buffer + arg; if(buffer.size == fa.size)result(buffer toList) else Done}
+     new RPFCollection( fa.map(pf=>pf(counter _)))
+   }
+
 }

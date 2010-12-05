@@ -38,6 +38,17 @@ object TwoLineBalanceSumVar{
 }
 
 
+object TwoLineBalanceSumVarInline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       
+       val  sum = {var total = Bal(0);b:Bal => total += b;total}
+       RPFCollection.concat(sum,End)(
+       c => acctLook(pn){a:Acct => balLook(a){c}} ,
+       c => acctLook(pn){a:Acct => balLook(a){c}})
+    }
+}
+
+
 object TwoLineBalanceVarying{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
