@@ -298,4 +298,20 @@ Services.requests
   
   } 
 
+
+  "SingleLineBalanceAccummulate" in {
+Services.requests
+ import Services._
+   val cb1 = SingleLineBalanceAccummulate(Num("124-555-1234"))
+  val cb2 = cb1(CI("1"))(Acct("alpha"))
+   val cb3 = cb1(CI("2"))(Acct("alpha"))
+    cb2(CI("3"))(Bal(124.5F))
+    val res:List[Bal] = Extract(cb3(CI("4"))(Bal(124.5F)))
+    
+ 
+  List(Bal(124.5F), Bal(124.5F)) must beEqualTo(res)
+  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
+  } 
+
 }
