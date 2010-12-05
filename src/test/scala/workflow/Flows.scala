@@ -218,5 +218,14 @@ object SingleLineBalanceAccummulate{
 }
 
 
+object SingleLineBalanceFirst{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      RPFCollection.first(End)(
+        c => acctLook(pn){a:Acct => balLook(a){c}} ,
+        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+  }
+}
+
+
  
 

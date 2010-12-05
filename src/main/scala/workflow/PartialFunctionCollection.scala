@@ -17,7 +17,7 @@ object RPFCollection{
      new RPFCollection( fa.map(pf=>pf(counter _)))
    }
 
-   def first[C](fa:(C=>RPF)=>RPF*)(result:Function1[C,RPF]) = {
+   def first[C](result:Function1[C,RPF])(fa:(C=>RPF)=>RPF*) = {
      var found = false
      def counter(arg:C):RPF = {if(found) {Done}; else {found = true;result(arg)}}
      new RPFCollection( fa.map(pf=>pf(counter _)))
