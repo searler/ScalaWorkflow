@@ -244,11 +244,11 @@ Services.requests
    val cb1 = PrepaidAndBalance(Num("124-555-1234"))
    val cb2 = cb1(CI("1"))(Acct("alpha"))
    val cb3 = cb1(CI("2"))(Acct("alpha"))
+   cb3(CI("4"))(PP(24.5F)) 
+    val res:List[BalanceLike] = Extract(cb2(CI("3"))(Bal(324.5F)))
+  
    
-   cb2(CI("3"))(Bal(124.5F))
-   val res:List[BalanceLike] = Extract(cb3(CI("4"))(PP(124.5F)))
-   
-   List(Bal(124.5F), PP(124.5F)) must beEqualTo(res)
+   List( PP(24.5F),Bal(324.5F)) must beEqualTo(res)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
   } 
 
@@ -305,12 +305,30 @@ Services.requests
    val cb1 = SingleLineBalanceAccummulate(Num("124-555-1234"))
   val cb2 = cb1(CI("1"))(Acct("alpha"))
    val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-    val res:List[Bal] = Extract(cb3(CI("4"))(Bal(124.5F)))
+    cb2(CI("4"))(Bal(124.5F))
+    val res:List[Bal] = Extract(cb3(CI("3"))(Bal(24.5F)))
     
  
-  List(Bal(124.5F), Bal(124.5F)) must beEqualTo(res)
+  List(Bal(124.5F), Bal(24.5F)) must beEqualTo(res)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
+  } 
+
+
+  "SingleLineBalanceOrdered" in {
+Services.requests
+ import Services._
+   val cb = SingleLineBalanceOrdered(Num("124-555-1234"))
+   val cb2 = cb(CI("2"))(Acct("alpha"))
+   val cb2b= cb2(CI("x"))(Bal(124.5F))
+  val cb1 = cb(CI("1"))(Acct("beta"))
+  val cb1b = cb1(CI("x"))(Bal(24.5F))
+ 
+    val res:List[(Int,Bal)] = Extract(cb1b)
+    
+ 
+  List(Bal(24.5F), Bal(124.5F)) must beEqualTo(res)
+  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("beta")) must beEqualTo(Services.requests) 
   
   } 
 
@@ -318,14 +336,14 @@ Services.requests
   "SingleLineBalanceFirst" in {
 Services.requests
  import Services._
-   val cb1 = SingleLineBalanceFirst(Num("124-555-1234"))
+  val cb1 = SingleLineBalanceFirst(Num("124-555-1234"))
   val cb2 = cb1(CI("1"))(Acct("alpha"))
   val cb3 = cb1(CI("2"))(Acct("alpha"))
-  val res:Bal = Extract(cb2(CI("3"))(Bal(124.5F)))
+  val res:Bal = Extract(cb2(CI("3"))(Bal(24.5F)))
   cb3(CI("4"))(Bal(124.5F))
     
  
-  Bal(124.5F) must beEqualTo(res)
+  Bal(24.5F) must beEqualTo(res)
   List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
   
   } 
