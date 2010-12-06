@@ -333,6 +333,23 @@ Services.requests
   } 
 
 
+  "SingleLineBalanceTupled" in {
+Services.requests
+ import Services._
+   val cb = SingleLineBalanceTupled(Num("124-555-1234"))
+   val cb2 = cb(CI("2"))(Acct("alpha"))
+   val cb2b= cb2(CI("x"))(Bal(124.5F))
+  val cb1 = cb(CI("1"))(Acct("beta"))
+
+    val res:(Acct,Bal) = Extract(cb1)
+    
+ 
+  (Acct("beta"), Bal(124.5F)) must beEqualTo(res)
+  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
+  
+  } 
+
+
   "SingleLineBalanceFirst" in {
 Services.requests
  import Services._

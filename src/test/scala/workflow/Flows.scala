@@ -228,6 +228,15 @@ object SingleLineBalanceOrdered{
 
 
 
+object SingleLineBalanceTupled{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      RPFCollection.tupled(End)(
+        c => acctLook(pn){c} ,
+        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+  }
+}
+
+
 object SingleLineBalanceFirst{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       RPFCollection.first(End)(

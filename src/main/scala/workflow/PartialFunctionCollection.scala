@@ -36,5 +36,13 @@ object RPFCollection{
      def counter(index:Int)(arg:C):RPF = {buffer += index->arg; if(buffer.size == fa.size)result(SortedMap(buffer:_*).values.toList) else Done}
      new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
+  
+  def tupled[A,B](result:Function1[(A,B),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF) = {
+     var a:Option[A] = None
+     var b:Option[B] = None
+     def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get);}
+     def processB(arg:B):RPF = {b= Some(arg);if(a==None)Done else result(a.get->b.get);}
+     new RPFCollection(List(fa(processA),fb(processB)))
+  } 
     
 }
