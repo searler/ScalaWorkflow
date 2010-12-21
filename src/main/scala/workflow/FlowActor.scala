@@ -14,12 +14,14 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
   }
 
   def process(ci:CI,in:Any){
-     val out = (pfs.filter(pf=>pf.isDefinedAt(ci))).head.apply(ci)(in)
-     out match {
+     val split  = pfs.partition(pf=>pf.isDefinedAt(ci))
+     pfs  = split._2
+     split._1.foreach{_.apply(ci)(in) match {
         case r:Result[_] => originator ! Extract(r); exit //all done
         case Done => //ignored //intermediate process ended
         case r:RPF => pfs = r::pfs //another service call
         case _ @ x =>  println("unexpected",x)
+       }
      }
   }
 }
