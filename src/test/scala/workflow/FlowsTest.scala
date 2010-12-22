@@ -13,7 +13,7 @@ object FlowsTest extends Specification {
    import scala.actors.Actor._
 
      
-   FlowActor(SingleLineBalanceBuilder(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer)),Num("124-555-1234"))
+   FlowActor(SingleLineBalanceBuilder(new LookupActor(accountServer), new LookupActor(balanceServer)),Num("124-555-1234"))
       receiveWithin(1000L){
        case b:Bal => b  must beEqualTo(Bal(124.5F))
        case scala.actors.TIMEOUT => fail("timeout")
