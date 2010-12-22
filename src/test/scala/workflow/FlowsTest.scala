@@ -21,6 +21,21 @@ object FlowsTest extends Specification {
       }
   } 
 
+"oneLineBalanceSelf" in {
+   import Services._
+  
+   import scala.actors.Actor._
+
+     
+   FlowActor(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)),Num("124-555-1234"))
+      receiveWithin(1000L){
+       case b:Bal => b  must beEqualTo(Bal(124.5F))
+       case scala.actors.TIMEOUT => fail("timeout")
+       case _ @ x=> fail(x toString)
+      }
+  } 
+
+
 
   "oneLineBalance" in {
 Services.requests
