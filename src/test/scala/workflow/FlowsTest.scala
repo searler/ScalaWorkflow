@@ -12,11 +12,8 @@ object FlowsTest extends Specification {
    import Services.LookupActor
    import scala.actors.Actor._
 
-   val creator = new SingleLineBalanceBuilder()(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer))
-   val act = new FlowActor[Num](creator)
-   act.start
-   
-      act ! Num("124-555-1234")
+     
+   FlowActor(SingleLineBalanceBuilder(new LookupActor[Num,Acct](accountServer), new LookupActor[Acct,Bal](balanceServer)),Num("124-555-1234"))
       receiveWithin(1000L){
        case b:Bal => b  must beEqualTo(Bal(124.5F))
        case scala.actors.TIMEOUT => fail("timeout")

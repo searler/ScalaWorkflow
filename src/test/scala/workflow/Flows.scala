@@ -3,10 +3,10 @@ package workflow
 import Services._
 import EndObject._
 
-class SingleLineBalanceBuilder(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) extends Function1[Num,RPF]{
-    def apply(pn:Num)= acctLook(pn){a:Acct => balLook(a)(End)}
-    
-
+object SingleLineBalanceBuilder 
+{
+   def apply(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) =
+      {pn:Num =>  acctLook(pn){a:Acct => balLook(a)(End)}}
 }
 
 

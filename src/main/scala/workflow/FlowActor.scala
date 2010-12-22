@@ -7,7 +7,7 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
      loop {
      react {
        case (ci:CI,r:Any) => process(ci,r) //process incoming service response
-       case arg:A => originator = sender;pfs = flow(arg) :: pfs; //start
+       case arg:A => originator = sender;pfs = flow(arg) :: pfs //start
        case _ @ x=> println("unexpected",x)
      }
    }
@@ -18,10 +18,18 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
      pfs  = remaining
      matched.foreach{_.apply(ci)(in) match {
         case r:Result[_] => originator ! Extract(r); exit //all done
-        case Done => //ignored //intermediate process ended
+        case Done => //ignored intermediate process ended
         case r:RPF => pfs = r::pfs //another service call
         case _ @ x =>  println("unexpected",x)
        }
      }
+  }
+}
+
+object FlowActor {
+  def apply[A](flow:A=>RPF,initial:A) = {
+      val a = new FlowActor(flow)
+      a.start
+      a ! initial
   }
 }
