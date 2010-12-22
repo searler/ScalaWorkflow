@@ -25,11 +25,11 @@ object CorrelationAllocator{
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   ci}
+    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg); ci}
 }
 
 class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
-   def call(arg:A):CI = {val ci = CorrelationAllocator(); scala.actors.Actor.self ! (ci,values(arg));   ci}
+   def call(arg:A):CI = {val ci = CorrelationAllocator(); scala.actors.Actor.self ! (ci,values(arg)); ci}
 }
 
 val acctMap = Map(Num("124-555-1234") -> Acct("alpha"))
