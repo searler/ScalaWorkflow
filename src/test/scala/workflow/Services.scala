@@ -28,27 +28,25 @@ class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
     def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg);   ci}
 }
 
-import scala.actors.Actor._
+val acctMap = Map(Num("124-555-1234") -> Acct("alpha"))
+val balMap = Map(Acct("alpha") -> Bal(124.5F))
 
-val accountServer = actor {
-   loop {
-    react {
-        case (ci:CI,Num("124-555-1234")) => sender ! (ci,Acct("alpha"))
-        case "exit" => exit
-        case _ @ x => println("unexpected accountServer",x)
+
+
+class Server[K,V](values:Map[K,V]) extends scala.actors.Actor {
+   start
+   def act(){
+      loop {
+        react {
+           case (ci:CI,k:K) => sender ! (ci,values(k))
+           case "exit" => exit
+           case _ @ x => println("unexpected",x)
+       }
     }
   }
 }
 
-val balanceServer = actor {
-   loop {
-    react {
-        case (ci:CI,Acct("alpha")) =>  sender ! (ci,Bal(124.5F))
-        case "exit" => exit
-        case _ @ x => println("unexpected balanceServer",x)
-    }
-  }
-}
+object accountServer extends Server(acctMap)
+object balanceServer extends Server(balMap)
   
-
 }
