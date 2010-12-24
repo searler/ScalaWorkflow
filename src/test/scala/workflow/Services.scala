@@ -25,7 +25,7 @@ object CorrelationAllocator{
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg); println("call",ci,arg); ci}
+    def call(arg:A):CI = {val ci = CorrelationAllocator(); service ! (ci,arg); ci}
 }
 
 class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
@@ -45,7 +45,7 @@ class Server[K,V](values:Map[K,V]) extends scala.actors.Actor {
    def act(){
       loop {
         react {
-           case (ci:CI,k:K) => println("service",ci,values(k));sender ! (ci,values(k))
+           case (ci:CI,k:K) => sender ! (ci,values(k))
            case "exit" => exit
            case _ @ x => println("unexpected",x)
        }

@@ -7,6 +7,15 @@ object FlowsTest extends Specification {
  import Services._
  import scala.actors.Actor._
 
+ private def chk[R](flow:Num=>RPF,expected:R) {
+    FlowActor(flow,Num("124-555-1234"))
+    receiveWithin(1000L){
+       case b:R => b  must beEqualTo(expected)
+       case scala.actors.TIMEOUT => fail("timeout")
+       case _ @ x=> fail(x toString)
+      }
+ }
+
  private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) {
     FlowActor(flow,Num("124-555-1234"))
     receiveWithin(1000L){
@@ -106,23 +115,10 @@ object FlowsTest extends Specification {
   check( TwoLineBalanceDoubledInline(_),Bal(498.0F) )
   } 
 
-/*
-"PrepaidAndBalance" in {
-
-  
-   val cb1 = PrepaidAndBalance(_)
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-   cb3(CI("4"))(PP(24.5F)) 
-    val res:List[BalanceLike] = Extract(cb2(CI("3"))(Bal(324.5F)))
-  
-   
-   List( PP(24.5F),Bal(324.5F)) must beEqualTo(res)
-  List(_,_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
+"PrepaidAndBalance" in {  
+   chk(PrepaidAndBalance(_),(List(Bal(124.5F), PP(124.5F))))
   } 
 
-
-*/
 "exclusiveSplitJoinVar" in {
    check(exclusiveSplitJoinVar(_))
   } 
@@ -135,59 +131,18 @@ object FlowsTest extends Specification {
    check( SingleLineBalanceOr(_))
   } 
 
-/*
   "SingleLineBalanceAccummulate" in {
-
- 
-   val cb1 = SingleLineBalanceAccummulate(_)
-  val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("4"))(Bal(124.5F))
-    val res:List[Bal] = Extract(cb3(CI("3"))(Bal(24.5F)))
-    
- 
-  List(Bal(124.5F), Bal(24.5F)) must beEqualTo(res)
-  List(_,_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
-  
+   chk( SingleLineBalanceAccummulate(_), List(Bal(124.5F), Bal(124.5F)) )
   } 
 
-
-  "SingleLineBalanceOrdered" in {
-
- 
-   val cb = SingleLineBalanceOrdered(_)
-   val cb2 = cb(CI("2"))(Acct("alpha"))
-   val cb2b= cb2(CI("x"))(Bal(124.5F))
-  val cb1 = cb(CI("1"))(Acct("beta"))
-  val cb1b = cb1(CI("x"))(Bal(24.5F))
- 
-    val res:List[(Int,Bal)] = Extract(cb1b)
-    
- 
-  List(Bal(24.5F), Bal(124.5F)) must beEqualTo(res)
-  List(_,_,Acct("alpha"),Acct("beta")) must beEqualTo() 
-  
+  "SingleLineBalanceOrdered" in { 
+   chk(SingleLineBalanceOrdered(_), List(Bal(124.5F), Bal(124.5F)))
   } 
 
-*/
-/*
   "SingleLineBalanceTupled" in {
-
- 
-   val cb = SingleLineBalanceTupled(_)
-   val cb2 = cb(CI("2"))(Acct("alpha"))
-   val cb2b= cb2(CI("x"))(Bal(124.5F))
-  val cb1 = cb(CI("1"))(Acct("beta"))
-
-    val res:(Acct,Bal) = Extract(cb1)
-    
- 
-  (Acct("beta"), Bal(124.5F)) must beEqualTo(res)
-  List(_,_,Acct("alpha")) must beEqualTo() 
-  
+   chk(SingleLineBalanceTupled(_),(Acct("alpha"), Bal(124.5F)))
   } 
 
-*/
   "SingleLineBalanceFirst" in {
   check( SingleLineBalanceFirst(_))
   } 
