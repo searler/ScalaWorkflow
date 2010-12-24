@@ -129,6 +129,10 @@ object FlowsTest extends Specification {
    chk(SingleLineBalanceTupled(_),(Acct("alpha"), Bal(124.5F)))
   } 
 
+"SingleLineBalanceTupledString" in {
+   chk(SingleLineBalanceTupledString(_),"""(Acct(alpha),Bal(124.5))""")
+  } 
+
   "SingleLineBalanceFirst" in {
   check( SingleLineBalanceFirst(_))
   } 

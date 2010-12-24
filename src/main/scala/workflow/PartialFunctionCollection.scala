@@ -33,12 +33,22 @@ object RPFCollection{
      new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
-  def tupled[A,B](result:Function1[(A,B),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF) = {
+  def tupled2[A,B](result:Function1[(A,B),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF) = {
      var a:Option[A] = None
      var b:Option[B] = None
-     def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get);}
-     def processB(arg:B):RPF = {b= Some(arg);if(a==None)Done else result(a.get->b.get);}
+     def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get)}
+     def processB(arg:B):RPF = {b= Some(arg);if(a==None)Done else result(a.get->b.get)}
      new RPFCollection(List(fa(processA),fb(processB)))
+  } 
+
+def tupled3[A,B,C](result:Function1[(A,B,C),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF) = {
+     var a:Option[A] = None
+     var b:Option[B] = None
+     var c:Option[C] = None
+     def processA(arg:A):RPF = {a= Some(arg);if(b==None||c==None)Done else result((a.get,b.get,c.get))}
+     def processB(arg:B):RPF = {b= Some(arg);if(a==None||c==None)Done else result((a.get,b.get,c.get))}
+     def processC(arg:C):RPF = {c= Some(arg);if(a==None||b==None)Done else result((a.get,b.get,c.get))}
+     new RPFCollection(List(fa(processA),fb(processB),fc(processC)))
   } 
     
 }
