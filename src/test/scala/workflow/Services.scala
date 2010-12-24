@@ -20,9 +20,6 @@ val acctMap = Map(Num("124-555-1234") -> Acct("alpha"))
 val balMap = Map(Acct("alpha") -> Bal(124.5F))
 val prepaidMap = Map(Acct("alpha") -> PP(124.5F))
 
-
-
-
 class Server[K,V](values:Map[K,V]) extends scala.actors.Actor {
    start
    def act(){
