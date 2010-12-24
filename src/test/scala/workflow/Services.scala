@@ -1,24 +1,7 @@
 package workflow
 
 object Services{
- import scala.collection.mutable.ListBuffer
-
-
- val requestBuffer = new ListBuffer[Any]
  
-
- def requests = { val l = requestBuffer toList;requestBuffer clear;l}
-
-  
-trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer.size)}
-}
-/*
-implicit object NumLookup extends RecordingLookup[Int,Num]
-implicit object AccountLookup extends RecordingLookup[Num,Acct]
-implicit object BalanceLookup extends RecordingLookup[Acct,Bal]
-implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
-*/
 object CorrelationAllocator{
    val id = new java.util.concurrent.atomic.AtomicInteger
    def apply() = CI(id.incrementAndGet)
