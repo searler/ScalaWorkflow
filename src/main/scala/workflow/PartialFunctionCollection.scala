@@ -2,12 +2,7 @@ package workflow
 
 case class RPFCollection(list:Traversable[RPF]) extends RPF{
   def isDefinedAt(ci: CI): Boolean = list.exists(_.isDefinedAt(ci))
-  def apply(ci:CI):Any=>RPF = try {
-                          (list.filter(_.isDefinedAt(ci))).head.apply(ci)
-                      }catch{
-                        case _ => throw new IllegalArgumentException(ci toString)
-                      }
-  override def toString = "RPFC:"+list.toString
+  def apply(ci:CI):Any=>RPF =  (list.filter(_.isDefinedAt(ci))).head.apply(ci)
   def toList = list toList
 }
 
