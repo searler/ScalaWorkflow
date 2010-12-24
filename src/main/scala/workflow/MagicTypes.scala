@@ -1,7 +1,7 @@
 package workflow
 
 
-case class CI(s:String){
+case class CI(s:Int){
    def apply[R](fn:R =>RPF):RPF = new Wrapper(this,fn)
 }
 

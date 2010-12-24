@@ -11,7 +11,7 @@ object Services{
 
   
 trait RecordingLookup[A,R] extends Lookup[A,R]{
-    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer.size.toString)}
+    def call(arg:A):CI = {requestBuffer += arg; new CI(requestBuffer.size)}
 }
 /*
 implicit object NumLookup extends RecordingLookup[Int,Num]
@@ -21,7 +21,7 @@ implicit object PrepaidLookup extends RecordingLookup[Acct,PP]
 */
 object CorrelationAllocator{
    val id = new java.util.concurrent.atomic.AtomicInteger
-   def apply() = CI(id.incrementAndGet.toString)
+   def apply() = CI(id.incrementAndGet)
 }
 
 class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
