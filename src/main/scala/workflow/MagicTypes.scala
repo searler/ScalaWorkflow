@@ -34,15 +34,10 @@ private case class Result[A](value:A) extends Terminal
 
 
 
-object EndObject{
+object Flow{
    def End[A](arg:A):RPF =  new Result(arg)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
-}
 
-
-
-
-object RPFCollection{
     def inject[C,D](f:C=>D, result:Function1[D,RPF])(fa:(C=>RPF)=>RPF*) = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
