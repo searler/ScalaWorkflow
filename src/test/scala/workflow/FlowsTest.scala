@@ -16,14 +16,7 @@ object FlowsTest extends Specification {
       }
  }
 
- private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) {
-    FlowActor(flow,Num("124-555-1234"))
-    receiveWithin(1000L){
-       case b:Bal => b  must beEqualTo(expected)
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
- }
+ private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
 
 "oneLineBalanceSelf" in {
    check(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)))
