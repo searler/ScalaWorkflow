@@ -7,14 +7,16 @@ object FlowsTest extends Specification {
  import Services._
  import scala.actors.Actor._
 
- private def chk[R](flow:Num=>RPF,expected:R) {
-    FlowActor(flow,Num("124-555-1234"))
+  private def ch[R](flow:Num=>RPF,n:Num,expected:R) {
+    FlowActor(flow,n)
     receiveWithin(1000L){
        case b:R => b  must beEqualTo(expected)
        case scala.actors.TIMEOUT => fail("timeout")
        case _ @ x=> fail(x toString)
       }
  }
+
+ private def chk[R](flow:Num=>RPF,expected:R) =ch(flow,Num("124-555-1234"),expected)
 
  private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
 
@@ -83,7 +85,11 @@ object FlowsTest extends Specification {
   } 
 
 "exclusiveSplitJoinVar" in {
-   check(exclusiveSplitJoinVar(_))
+   check(exclusiveSplitJoinVar(_),Bal(11F))
+  } 
+
+"exclusiveSplitJoinVarBeta" in {
+   ch(exclusiveSplitJoinVar(_),Num("333-555-1234"),Bal(1F))
   } 
 
 "exclusiveSplitJoin" in { 

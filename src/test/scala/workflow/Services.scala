@@ -16,8 +16,8 @@ class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
 }
 
 val numMap = Map(123->Num("124-555-1234"))
-val acctMap = Map(Num("124-555-1234") -> Acct("alpha"))
-val balMap = Map(Acct("alpha") -> Bal(124.5F))
+val acctMap = Map(Num("124-555-1234") -> Acct("alpha"),Num("333-555-1234") -> Acct("beta"))
+val balMap = Map(Acct("alpha") -> Bal(124.5F),Acct("beta") -> Bal(1.0F),Acct("gamma") -> Bal(11.0F))
 val prepaidMap = Map(Acct("alpha") -> PP(124.5F))
 
 

@@ -24,7 +24,12 @@ object SingleLineBalanceAsTwo{
       val next = {a:Acct => balLook(a)(End)}
       inject(fun,next)(c => acctLook(pn)(c))
     }
+}
 
+object SingleLineBalanceAsTwoStripped{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      inject({a:Acct => a},{balLook(_:Acct)(End)})(c => acctLook(pn)(c))
+    }
 }
 
 object TwoLineBalanceSumVar{
@@ -143,7 +148,6 @@ object PrepaidAndBalance{
 
 object SingleLineBalanceOrEnd{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-  
       acctLook(pn){_ match {
           case Acct("alpha")  => balLook(Acct("alpha"))(End)
           case _ @ a => balLook(a)(End)
@@ -151,8 +155,6 @@ object SingleLineBalanceOrEnd{
     }
   }
 }
-
-
 
 object exclusiveSplitJoinVar{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
@@ -164,7 +166,7 @@ object exclusiveSplitJoinVar{
     
   
       acctLook(pn){_ match {
-          case Acct("alpha")  => balLook(Acct("alpha"))(next)
+          case Acct("alpha")  => balLook(Acct("gamma"))(next)
           case _ @ a => balLook(a)(next)
        }
     }
