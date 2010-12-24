@@ -8,6 +8,10 @@ object ServicesTest extends Specification{
  import Services._
  import EndObject._
 
+object Extract{
+   def apply[A](r:RPF):A = (r.asInstanceOf[Result[A]]).value
+}
+
 /*
  "account lookup" in {
     Services.requests

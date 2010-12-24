@@ -23,7 +23,7 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
      val (matched,remaining)  = pfs.partition(pf=>pf.isDefinedAt(ci))
      pfs  = remaining
      matched.foreach{_.apply(ci)(in) match {
-        case r:Result[_] => originator ! Extract(r); exit //all done
+        case r:Result[_] => originator ! r.value; exit //all done
         case Done => //ignored intermediate process ended
         case rc:RPFCollection => pfs = rc.toList ::: pfs
         case r:RPF => pfs = r::pfs //another service call
