@@ -25,24 +25,8 @@ object FlowsTest extends Specification {
       }
  }
 
-  "oneLineBalanceActor" in {
-   import Services.accountServer
-   import Services.balanceServer
-   import Services.LookupActor
- 
-   check(SingleLineBalanceBuilder(new LookupActor(accountServer), new LookupActor(balanceServer)))     
-  } 
-
 "oneLineBalanceSelf" in {
    check(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)))
-  } 
-
-"twoLineBalanceActorSelf" in {
-  import Services.accountServer
-   import Services.balanceServer
-   import Services.LookupActor
- 
-   check(TwoLineBalance(_:Num)(new LookupActor(accountServer), new LookupActor(balanceServer)),Bal(249F))  
   } 
 
 "oneLineBalanceSelfPartial" in {
