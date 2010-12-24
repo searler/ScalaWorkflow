@@ -72,20 +72,6 @@ object FlowsTest extends Specification {
 "twoLineBalanceSequential" in {
    check(TwoLineBalanceSequential(_),Bal(249F))
   } 
-/*
-"twoLineBalanceSequentialPipeline" in {
-
- 
-   val cb1 = TwoLineBalanceSequentialPipeline(_)
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 =  cb2(CI("2"))(Bal(124.5F))
-   val cb4=  cb3(CI("3"))(Bal(124.5F))
-
-   List(_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
-   val res:Bal = Extract( cb4)
- 
-  } 
-*/
 
 "twoLineBalanceSequentialOptimized" in {
    check(TwoLineBalanceSequentialOptimized(_),Bal(249F))
