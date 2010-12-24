@@ -8,6 +8,7 @@ object ServicesTest extends Specification{
  import Services._
  import EndObject._
 
+/*
  "account lookup" in {
     Services.requests
     val cb = AccountLookup(Num("123-555-1234"))(End)
@@ -24,5 +25,5 @@ object ServicesTest extends Specification{
 
    List(Num("123-555-1234")) must beEqualTo(requests)
  } 
-
+*/
 }

@@ -1,286 +1,116 @@
-
 package workflow
-
 
 import org.specs._
 
 object FlowsTest extends Specification {
 
+ import Services._
+ import scala.actors.Actor._
+
+ private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) {
+    FlowActor(flow,Num("124-555-1234"))
+    receiveWithin(1000L){
+       case b:Bal => b  must beEqualTo(expected)
+       case scala.actors.TIMEOUT => fail("timeout")
+       case _ @ x=> fail(x toString)
+      }
+ }
+
   "oneLineBalanceActor" in {
    import Services.accountServer
    import Services.balanceServer
    import Services.LookupActor
-   import scala.actors.Actor._
-
-     
-   FlowActor(SingleLineBalanceBuilder(new LookupActor(accountServer), new LookupActor(balanceServer)),Num("124-555-1234"))
-      receiveWithin(1000L){
-       case b:Bal => b  must beEqualTo(Bal(124.5F))
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
+ 
+   check(SingleLineBalanceBuilder(new LookupActor(accountServer), new LookupActor(balanceServer)))     
   } 
 
 "oneLineBalanceSelf" in {
-   import Services._
-  
-   import scala.actors.Actor._
-
-     
-   FlowActor(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)),Num("124-555-1234"))
-      receiveWithin(1000L){
-       case b:Bal => b  must beEqualTo(Bal(124.5F))
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
+   check(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)))
   } 
-
 
 "twoLineBalanceActorSelf" in {
   import Services.accountServer
    import Services.balanceServer
    import Services.LookupActor
- import scala.actors.Actor._
-   FlowActor(TwoLineBalance(_:Num)(new LookupActor(accountServer), new LookupActor(balanceServer)),Num("124-555-1234"))
-    receiveWithin(1000L){
-       case b:Bal => b  must beEqualTo(Bal(249F))
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
-  
+ 
+   check(TwoLineBalance(_:Num)(new LookupActor(accountServer), new LookupActor(balanceServer)),Bal(249F))  
   } 
 
 "oneLineBalanceSelfPartial" in {
-   import Services._
-  
-   import scala.actors.Actor._
-
-     
-   FlowActor(SingleLineBalance(_:Num)(new LookupSelf(acctMap), new LookupSelf(balMap)),Num("124-555-1234"))
-      receiveWithin(1000L){
-       case b:Bal => b  must beEqualTo(Bal(124.5F))
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
+   check(SingleLineBalance(_:Num)(new LookupSelf(acctMap), new LookupSelf(balMap)))
   } 
 
   "oneLineBalance" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalance(Num("124-555-1234"))
-   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
-   val cb2 = cb1(CI("1333"))(Acct("alpha")) //#############
-   List(Acct("alpha")) must beEqualTo(Services.requests) 
-   val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
-   Bal(124.5F) must beEqualTo(res)
-  
+   check(SingleLineBalance(_))
   } 
 
 "oneLineBalanceAsPartial" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalanceAsPartial(Num("124-555-1234"))
-   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
-   val cb2 = cb1(CI("1"))(Acct("alpha")) //#############
-   List(Acct("alpha")) must beEqualTo(Services.requests) 
-   val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
-   Bal(124.5F) must beEqualTo(res)
-  
+  check( SingleLineBalanceAsPartial(_))
+ } 
+
+"oneLineBalanceOrEnd" in { 
+   check( SingleLineBalanceOrEnd(_))
   } 
 
-
-"oneLineBalanceOrEnd" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalanceOrEnd(Num("124-555-1234"))
-   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
-   val cb2 = cb1(CI("1"))(Acct("alpha")) //#############
-   List(Acct("alpha")) must beEqualTo(Services.requests) 
-   val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
-   Bal(124.5F) must beEqualTo(res)
-  
+ "oneLineBalanceAsTwo" in { 
+   check( SingleLineBalanceAsTwo(_))
   } 
-
-
-
- "oneLineBalanceAsTwo" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalanceAsTwo(Num("124-555-1234"))
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val res:Bal =Extract(cb2(CI("2"))(Bal(124.5F)))
-   Bal(124.5F) must beEqualTo(res)
-   List(Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
-  } 
-
 
  "twoLineBalance" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalance(Num("124-555-1234"))
-   List(Num("124-555-1234"),Num("124-555-1234")) must beEqualTo(Services.requests) 
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   List(Acct("alpha")) must beEqualTo(Services.requests) 
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-   List(Acct("alpha")) must beEqualTo(Services.requests) 
-    cb2(CI("3"))(Bal(124.5F))
-   val res:Bal = Extract( cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(249.0F) must beEqualTo(res)
-  
+   check( TwoLineBalance(_),Bal(249F))
   } 
 
 "twoLineBalanceSequential" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceSequential(Num("124-555-1234"))
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 =  cb2(CI("2"))(Bal(124.5F))
-   val cb4  = cb3(CI("3"))(Acct("alpha"))
-   val cb5 =  cb4(CI("4"))(Bal(124.5F))
-
-   List(Num("124-555-1234"),Acct("alpha"),Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
-   val res:Bal = Extract( cb5)
-    
- 
-  Bal(249.0F) must beEqualTo(res)
- 
+   check(TwoLineBalanceSequential(_),Bal(249F))
   } 
 /*
 "twoLineBalanceSequentialPipeline" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceSequentialPipeline(Num("124-555-1234"))
+
+ 
+   val cb1 = TwoLineBalanceSequentialPipeline(_)
    val cb2 = cb1(CI("1"))(Acct("alpha"))
    val cb3 =  cb2(CI("2"))(Bal(124.5F))
    val cb4=  cb3(CI("3"))(Bal(124.5F))
 
-   List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+   List(_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
    val res:Bal = Extract( cb4)
  
   } 
 */
 
 "twoLineBalanceSequentialOptimized" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceSequentialOptimized(Num("124-555-1234"))
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 =  cb2(CI("2"))(Bal(124.5F))
-   val cb4=  cb3(CI("3"))(Bal(124.5F))
-
-  
-   val res:Bal = Extract( cb4)
-    
- 
-  Bal(249.0F) must beEqualTo(res)
- List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
- 
+   check(TwoLineBalanceSequentialOptimized(_),Bal(249F))
   } 
 
 "twoLineBalanceVarying" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceVarying(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-   val res:Bal = Extract( cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(373.5F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  check(TwoLineBalanceVarying(_),Bal(373.5F) )
   } 
 
 "twoLineBalanceSumVar" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceSumVar(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-   val res:Bal = Extract( cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(249.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+   check(TwoLineBalanceSumVar(_),Bal(249.0F))
   } 
 
-
-
-"twoLineBalanceSumVarInline" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceSumVarInline(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-   val res:Bal = Extract( cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(249.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+"twoLineBalanceSumVarInline" in { 
+   check(TwoLineBalanceSumVarInline(_),Bal(249F))
   } 
 
-
-
-"twoLineBalanceEfficient" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceEfficient(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-    cb2(CI("2"))(Bal(124.5F))
-    val res:Bal =  Extract(cb2(CI("3"))(Bal(124.5F)))
-    
- 
-  Bal(249.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+"twoLineBalanceEfficient" in { 
+   check(TwoLineBalanceEfficient(_),Bal(249.0F))
   } 
 
-
-
-"twoLineBalanceDoubled" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceDoubled(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-    val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(498.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+"twoLineBalanceDoubled" in { 
+  check(TwoLineBalanceDoubled(_),Bal(498.0F))
   } 
 
-
-
-"twoLineBalanceDoubledInline" in {
-Services.requests
- import Services._
-   val cb1 = TwoLineBalanceDoubledInline(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-    val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(498.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+"twoLineBalanceDoubledInline" in { 
+  check( TwoLineBalanceDoubledInline(_),Bal(498.0F) )
   } 
 
-
+/*
 "PrepaidAndBalance" in {
-Services.requests
-  import Services._
-   val cb1 = PrepaidAndBalance(Num("124-555-1234"))
+
+  
+   val cb1 = PrepaidAndBalance(_)
    val cb2 = cb1(CI("1"))(Acct("alpha"))
    val cb3 = cb1(CI("2"))(Acct("alpha"))
    cb3(CI("4"))(PP(24.5F)) 
@@ -288,60 +118,28 @@ Services.requests
   
    
    List( PP(24.5F),Bal(324.5F)) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  List(_,_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
   } 
 
 
-
+*/
 "exclusiveSplitJoinVar" in {
-Services.requests
- import Services._
-   val cb1 = exclusiveSplitJoinVar(Num("124-555-1234"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-   val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(124.5F) must beEqualTo(res)
-  List(Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
+   check(exclusiveSplitJoinVar(_))
   } 
 
-
-
-"exclusiveSplitJoin" in {
-Services.requests
- import Services._
-   val cb1 = exclusiveSplitJoin(Num("124-555-1234"))
-
-   val cb2 = cb1(CI("1"))(Acct("alpha"))
-   val cb3 = cb1(CI("2"))(Acct("alpha"))
-    cb2(CI("3"))(Bal(124.5F))
-    val res:Bal = Extract(cb3(CI("4"))(Bal(124.5F)))
-    
- 
-  Bal(249.0F) must beEqualTo(res)
-  List(Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+"exclusiveSplitJoin" in { 
+   check( exclusiveSplitJoin(_),Bal(249.0F) )
   } 
 
-
-
-
-  "SingleLineBalanceOr" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalanceOr(Num("124-555-1234"))
-   List(Num("124-555-1234")) must beEqualTo(Services.requests)  
-   val cb2 = cb1(CI("1333"))(Acct("alpha")) //#############
-  List(Acct("alpha")) must beEqualTo(Services.requests) 
-  val res:Bal = Extract(cb2(CI("2"))(Bal(124.5F)))
- Bal(124.5F) must beEqualTo(res)
-  
+  "SingleLineBalanceOr" in { 
+   check( SingleLineBalanceOr(_))
   } 
 
-
+/*
   "SingleLineBalanceAccummulate" in {
-Services.requests
- import Services._
-   val cb1 = SingleLineBalanceAccummulate(Num("124-555-1234"))
+
+ 
+   val cb1 = SingleLineBalanceAccummulate(_)
   val cb2 = cb1(CI("1"))(Acct("alpha"))
    val cb3 = cb1(CI("2"))(Acct("alpha"))
     cb2(CI("4"))(Bal(124.5F))
@@ -349,15 +147,15 @@ Services.requests
     
  
   List(Bal(124.5F), Bal(24.5F)) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
+  List(_,_,Acct("alpha"),Acct("alpha")) must beEqualTo() 
   
   } 
 
 
   "SingleLineBalanceOrdered" in {
-Services.requests
- import Services._
-   val cb = SingleLineBalanceOrdered(Num("124-555-1234"))
+
+ 
+   val cb = SingleLineBalanceOrdered(_)
    val cb2 = cb(CI("2"))(Acct("alpha"))
    val cb2b= cb2(CI("x"))(Bal(124.5F))
   val cb1 = cb(CI("1"))(Acct("beta"))
@@ -367,15 +165,16 @@ Services.requests
     
  
   List(Bal(24.5F), Bal(124.5F)) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("beta")) must beEqualTo(Services.requests) 
+  List(_,_,Acct("alpha"),Acct("beta")) must beEqualTo() 
   
   } 
 
-
+*/
+/*
   "SingleLineBalanceTupled" in {
-Services.requests
- import Services._
-   val cb = SingleLineBalanceTupled(Num("124-555-1234"))
+
+ 
+   val cb = SingleLineBalanceTupled(_)
    val cb2 = cb(CI("2"))(Acct("alpha"))
    val cb2b= cb2(CI("x"))(Bal(124.5F))
   val cb1 = cb(CI("1"))(Acct("beta"))
@@ -384,24 +183,13 @@ Services.requests
     
  
   (Acct("beta"), Bal(124.5F)) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha")) must beEqualTo(Services.requests) 
+  List(_,_,Acct("alpha")) must beEqualTo() 
   
   } 
 
-
+*/
   "SingleLineBalanceFirst" in {
-Services.requests
- import Services._
-  val cb1 = SingleLineBalanceFirst(Num("124-555-1234"))
-  val cb2 = cb1(CI("1"))(Acct("alpha"))
-  val cb3 = cb1(CI("2"))(Acct("alpha"))
-  val res:Bal = Extract(cb2(CI("3"))(Bal(24.5F)))
-  cb3(CI("4"))(Bal(124.5F))
-    
- 
-  Bal(24.5F) must beEqualTo(res)
-  List(Num("124-555-1234"),Num("124-555-1234"),Acct("alpha"),Acct("alpha")) must beEqualTo(Services.requests) 
-  
+  check( SingleLineBalanceFirst(_))
   } 
 
 }
