@@ -12,21 +12,19 @@ trait Lookup[A,R] {
   def call(arg:A):CI
 }
 
-
-object Done extends RPF{
+trait Terminal extends RPF{
    def isDefinedAt(ci:CI) = false
-   def apply(i:CI)= {case _ => Done}
+   def apply(ci:CI)= {case _ => Done}
 }
+
+object Done extends Terminal
 
 private class Wrapper[T](correlated:CI,fn:T=>RPF) extends RPF{
     def isDefinedAt(ci:CI) = ci == correlated
     def apply(ci:CI)=  { a:Any=>fn(a.asInstanceOf[T])}
 }
 
-case class Result[A](value:A) extends RPF{
-   def isDefinedAt(ci:CI) = false
-   def apply(ci:CI)= {case _ => Done}
-}
+private case class Result[A](value:A) extends Terminal
 
 object Return{
    def apply[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
