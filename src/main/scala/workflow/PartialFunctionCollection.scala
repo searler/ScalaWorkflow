@@ -7,10 +7,10 @@ case class RPFCollection(list:Traversable[RPF]) extends RPF{
 }
 
 object RPFCollection{
-    def concat[C,D](f:C=>D, result:Function1[D,RPF])(fa:(C=>RPF)=>RPF*) = {
+    def inject[C,D](f:C=>D, result:Function1[D,RPF])(fa:(C=>RPF)=>RPF*) = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
-     new RPFCollection( fa.map(pf=>pf(counter _)))
+     new RPFCollection(fa.map(pf=>pf(counter _)))
    }
 
    def first[C](result:Function1[C,RPF])(fa:(C=>RPF)=>RPF*) = {
