@@ -36,6 +36,33 @@ object FlowsTest extends Specification {
   } 
 
 
+"twoLineBalanceActorSelf" in {
+  import Services.accountServer
+   import Services.balanceServer
+   import Services.LookupActor
+ import scala.actors.Actor._
+   FlowActor(TwoLineBalance(_:Num)(new LookupActor(accountServer), new LookupActor(balanceServer)),Num("124-555-1234"))
+    receiveWithin(1000L){
+       case b:Bal => b  must beEqualTo(Bal(249F))
+       case scala.actors.TIMEOUT => fail("timeout")
+       case _ @ x=> fail(x toString)
+      }
+  
+  } 
+
+"oneLineBalanceSelfPartial" in {
+   import Services._
+  
+   import scala.actors.Actor._
+
+     
+   FlowActor(SingleLineBalance(_:Num)(new LookupSelf(acctMap), new LookupSelf(balMap)),Num("124-555-1234"))
+      receiveWithin(1000L){
+       case b:Bal => b  must beEqualTo(Bal(124.5F))
+       case scala.actors.TIMEOUT => fail("timeout")
+       case _ @ x=> fail(x toString)
+      }
+  } 
 
   "oneLineBalance" in {
 Services.requests

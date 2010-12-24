@@ -7,7 +7,8 @@ case class RPFCollection(list:Traversable[RPF]) extends RPF{
                       }catch{
                         case _ => throw new IllegalArgumentException(ci toString)
                       }
-  override def toString = list.toString
+  override def toString = "RPFC:"+list.toString
+  def toList = list toList
 }
 
 object RPFCollection{

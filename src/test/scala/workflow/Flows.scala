@@ -93,8 +93,8 @@ object TwoLineBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
        RPFCollection.concat(next,End)(
-       c => acctLook(pn){a:Acct => balLook(a){c}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})
+       c => acctLook(pn){a:Acct =>  balLook(a){c}} ,
+       c => acctLook(pn){a:Acct =>  balLook(a){c}})
     }
 }
 
