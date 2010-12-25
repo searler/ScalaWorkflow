@@ -270,3 +270,15 @@ object ListBalance{
    }
 } 
 
+object SplitJoin{
+    def apply(s:String)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      var a1:Acct = null
+      var a2:Acct = null
+      val term = join(2)(Return("done:"+a1+a2))
+      split (
+         acctLook(Num("124-555-1234")){a:Acct => a1=a;term()},
+         acctLook(Num("333-555-1234")){a:Acct => a2=a;term()}
+      )
+    }
+}
+

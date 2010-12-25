@@ -128,4 +128,8 @@ object FlowsTest extends Specification {
     ch(ListBalance(_:Int),123,Bal(125.5F))
   }
 
+    "SplitJoin" in {
+    ch(SplitJoin(_:String),"xxx","done:Acct(alpha)Acct(beta)")
+  }
+
 }

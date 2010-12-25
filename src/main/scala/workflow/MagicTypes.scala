@@ -38,6 +38,16 @@ object Flow{
    def End[A](arg:A):RPF =  new Result(arg)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
 
+   def split(fa:RPF*) = {
+     new RPFCollection(fa)
+   }
+
+   def join(require:Int)(result:Unit=>RPF) = {
+     var count = require
+     def counter:RPF = {count-=1;if(count==0)result();  else Done}
+     counter _
+   }
+
     def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:Function1[D,RPF]) = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
