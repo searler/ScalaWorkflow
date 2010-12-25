@@ -145,7 +145,7 @@ object FlowsTest extends Specification {
   }
 
  "Conditional two" in {
-    ch(Conditional(_:String),"two",Acct("beta"))
+    ch(Conditional(_:String),"two",Bal(1F))
   }
 
 "Conditional other" in {
