@@ -10,6 +10,7 @@ class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
        case arg:A => { 
                         originator = sender
                         flow(arg) match {
+                              case r:Result[_] => originator ! r.value; exit //immediate done
                               case rc:RPFCollection => pfs = rc toList
                               case _ @ x => pfs = x :: Nil 
                             }

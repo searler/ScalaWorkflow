@@ -140,4 +140,16 @@ object FlowsTest extends Specification {
     ch(SplitAny(_:String),"xxx",Acct("alpha"))
   }
 
+ "Conditional one" in {
+    ch(Conditional(_:String),"one",Acct("alpha"))
+  }
+
+ "Conditional two" in {
+    ch(Conditional(_:String),"two",Acct("beta"))
+  }
+
+"Conditional other" in {
+    ch(Conditional(_:String),"xx","unmatched")
+  }
+
 }
