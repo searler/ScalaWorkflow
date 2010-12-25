@@ -67,13 +67,27 @@ object Flow{
 
   def gather[C](require:Int)(result:List[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
-     def counter(arg:C):RPF = {buffer += arg; if(buffer.size == require)result(buffer toList) else Done}
+     def counter(arg:C):RPF = {
+        buffer += arg
+        if(buffer.size == require)
+           result(buffer toList)
+        else 
+           Done
+     }
      counter _
    }
 
     def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:D=>RPF):RPF = {
      var count = fa size
-     def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
+     def counter(arg:C):RPF = {
+        count-=1
+        if(count==0)
+           result(f(arg))
+        else {
+           f(arg)
+           Done
+         }
+     }
      new RPFCollection(fa.map(pf=>pf(counter _)))
    }
 
@@ -132,8 +146,20 @@ object Flow{
   def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:((A,B))=>RPF):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
-     def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get)}
-     def processB(arg:B):RPF = {b= Some(arg);if(a==None)Done else result(a.get->b.get)}
+     def processA(arg:A):RPF = {
+         a= Some(arg)
+         if(b==None)
+            Done 
+         else 
+            result(a.get->b.get)
+     }
+     def processB(arg:B):RPF = {
+         b= Some(arg)
+         if(a==None)
+            Done
+         else 
+            result(a.get->b.get)
+     }
      new RPFCollection(List(fa(processA),fb(processB)))
   } 
 
