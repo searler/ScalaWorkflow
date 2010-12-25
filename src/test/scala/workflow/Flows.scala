@@ -282,10 +282,10 @@ object SplitJoin{
     }
 }
 
-object SplitCollect{
+object SplitGather{
     def apply(s:String)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
     
-      val term = collect[Acct](2)(End)
+      val term = gather[Acct](2)(End)
       split (
          acctLook(Num("124-555-1234")){term},
          acctLook(Num("333-555-1234")){term}

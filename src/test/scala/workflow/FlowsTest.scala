@@ -132,8 +132,8 @@ object FlowsTest extends Specification {
     ch(SplitJoin(_:String),"xxx","done:Acct(alpha)Acct(beta)")
   }
 
-  "SplitCollect" in {
-    ch(SplitCollect(_:String),"xxx",List(Acct("alpha"), Acct("beta")))
+  "SplitGather" in {
+    ch(SplitGather(_:String),"xxx",List(Acct("alpha"), Acct("beta")))
   }
 
 "SplitAny" in {

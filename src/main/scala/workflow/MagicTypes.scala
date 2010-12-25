@@ -54,7 +54,7 @@ object Flow{
      counter _
    }
 
-  def collect[C](require:Int)(result:List[C]=>RPF) = {
+  def gather[C](require:Int)(result:List[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {buffer += arg; if(buffer.size == require)result(buffer toList) else Done}
      counter _
