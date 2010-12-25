@@ -120,6 +120,10 @@ object FlowsTest extends Specification {
   check( SingleLineBalanceFirst(_))
   } 
 
+"SingleLineBalanceFirstChained" in {
+  check( SingleLineBalanceFirstChained(_))
+  } 
+
   "ListBalance" in {
     ch(ListBalance(_:Int),123,Bal(125.5F))
   }

@@ -249,11 +249,19 @@ object SingleLineBalanceTupledString{
 
 object SingleLineBalanceFirst{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.first(End)(
+      Flow.first[Bal](
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
-        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+        c => acctLook(pn){a:Acct => balLook(a){c}})(End) 
   }
 }
+
+object SingleLineBalanceFirstChained{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      first[Acct]( c => acctLook(pn){c}){a:Acct => first[Bal]{d=>balLook(a){d}} (End)}
+               
+  }
+}
+
 
 
 object ListBalance{
