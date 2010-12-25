@@ -22,13 +22,13 @@ object SingleLineBalanceAsTwo{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val fun = {a:Acct => a}
       val next = {a:Acct => balLook(a)(End)}
-      inject(fun,next)(c => acctLook(pn)(c))
+      inject(fun)(c => acctLook(pn)(c))(next)
     }
 }
 
 object SingleLineBalanceAsTwoStripped{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      inject({a:Acct => a},{balLook(_:Acct)(End)})(c => acctLook(pn)(c))
+      inject({a:Acct => a})(c => acctLook(pn)(c)){balLook(_:Acct)(End)}
     }
 }
 
@@ -36,9 +36,9 @@ object TwoLineBalanceSumVar{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        var total = Bal(0)
        val  sum = {b:Bal => total += b}
-       Flow.inject(sum,Return(total))(
+       inject(sum)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})
+       c => acctLook(pn){a:Acct => balLook(a){c}})(Return(total))
     }
 }
 
@@ -47,9 +47,9 @@ object TwoLineBalanceSumVarInline{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
-       Flow.inject(sum,End)(
+       Flow.inject(sum)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})
+       c => acctLook(pn){a:Acct => balLook(a){c}})(End)
     }
 }
 
@@ -57,9 +57,9 @@ object TwoLineBalanceSumVarInline{
 object TwoLineBalanceVarying{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-       Flow.inject(next,End)(
+       Flow.inject(next)(
        c => acctLook(pn){a:Acct => balLook(a){b:Bal => c(b+b)}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})
+       c => acctLook(pn){a:Acct => balLook(a){c}})(End)
     }
 }
 
@@ -97,18 +97,18 @@ object TwoLineBalanceSequentialOptimized{
 object TwoLineBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-       Flow.inject(next,End)(
+       Flow.inject(next)(
        c => acctLook(pn){a:Acct =>  balLook(a){c}} ,
-       c => acctLook(pn){a:Acct =>  balLook(a){c}})
+       c => acctLook(pn){a:Acct =>  balLook(a){c}})(End)
     }
 }
 
 object TwoLineBalanceEfficient{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  next = {var total = Bal(0);b:Bal => total += b;total}
-        acctLook(pn){a:Acct=>Flow.inject(next,End)(
+        acctLook(pn){a:Acct=>Flow.inject(next)(
           c => balLook(a)(c) ,
-          c => balLook(a)(c) )
+          c => balLook(a)(c) )(End)
        }
       
     }
@@ -118,9 +118,9 @@ object TwoLineBalanceDoubled{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
        val next = {b:Bal => End(b+b)}
-       Flow.inject(sum,next)(
+       Flow.inject(sum)(
        c => acctLook(pn){a:Acct => balLook(a){c}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})
+       c => acctLook(pn){a:Acct => balLook(a){c}})(next)
     }
 
 } 
@@ -130,9 +130,9 @@ object TwoLineBalanceDoubledInline{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
        val next = {b:Bal => End(b)}
-       Flow.inject(sum,next)(
+       Flow.inject(sum)(
        c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}} ,
-       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}})
+       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}})(next)
     }
 
 } 
@@ -140,9 +140,9 @@ object TwoLineBalanceDoubledInline{
 object PrepaidAndBalance{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) = {
       val  next = {var list = new scala.collection.mutable.ListBuffer[BalanceLike];b:BalanceLike => list+=b;list toList}
-      Flow.inject(next,End)(
+      Flow.inject(next)(
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
-        c => acctLook(pn){a:Acct => ppLook(a){c}})
+        c => acctLook(pn){a:Acct => ppLook(a){c}})(End)
     }
 }
 
@@ -194,7 +194,7 @@ object SingleLineBalanceAsPartial{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       val fun = {a:Acct => a}
       val next = {a:Acct => balLook(a)(End)}
-      Flow.inject(fun,next)( acctLook(pn))
+      Flow.inject(fun)( acctLook(pn))(next)
     }
 
 }
