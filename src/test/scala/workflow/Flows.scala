@@ -213,18 +213,18 @@ object SingleLineBalanceOr{
 
 object SingleLineBalanceAccummulate{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.accummulate(End)(
+      Flow.accummulate[Bal](
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
-        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+        c => acctLook(pn){a:Acct => balLook(a){c}}) (End)
   }
 }
 
 
 object SingleLineBalanceOrdered{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.ordered(End)(
+      Flow.ordered[Bal](
         c => acctLook(pn){a:Acct => balLook(a){c}} ,
-        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+        c => acctLook(pn){a:Acct => balLook(a){c}}) (End)
   }
 }
 

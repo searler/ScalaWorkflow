@@ -51,7 +51,7 @@ object Flow{
    }
 
    // order of arrival
-    def accummulate[C](result:Function1[List[C],RPF])(fa:(C=>RPF)=>RPF*) = {
+    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {buffer += arg; if(buffer.size == fa.size)result(buffer toList) else Done}
      new RPFCollection( fa.map(pf=>pf(counter _)))
@@ -64,7 +64,7 @@ object Flow{
      }
   }
 
-  def ordered[C](result:Function1[List[C],RPF])(fa:(C=>RPF)=>RPF*) = {
+  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Function1[List[C],RPF]) = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
      def counter(index:Int)(arg:C):RPF = {buffer += index->arg; if(buffer.size == fa.size)result(SortedMap(buffer:_*).values.toList) else Done}
