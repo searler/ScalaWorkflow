@@ -119,8 +119,8 @@ object TwoLineBalanceDoubled{
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
        val next = {b:Bal => End(b+b)}
        Flow.inject(sum)(
-       c => acctLook(pn){a:Acct => balLook(a){c}} ,
-       c => acctLook(pn){a:Acct => balLook(a){c}})(next)
+       c => acctLook(pn){balLook(_){c}} ,
+       c => acctLook(pn){balLook(_){c}})(next)
     }
 
 } 
@@ -131,8 +131,8 @@ object TwoLineBalanceDoubledInline{
        val  sum = {var total = Bal(0);b:Bal => total += b;total}
        val next = {b:Bal => End(b)}
        Flow.inject(sum)(
-       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}} ,
-       c => acctLook(pn){a:Acct => balLook(a){b:Bal =>c(b+b)}})(next)
+       c => acctLook(pn){balLook(_){b:Bal =>c(b+b)}} ,
+       c => acctLook(pn){balLook(_){b:Bal =>c(b+b)}})(next)
     }
 
 } 
