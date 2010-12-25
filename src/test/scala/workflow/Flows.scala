@@ -258,7 +258,7 @@ object SingleLineBalanceFirst{
 
 object ListBalance{
    def apply(i:Int)(implicit numLook:Lookup[Int,List[Num]], acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-       numLook(i)(l=>scatter({a:List[Acct]=>scatter({b:List[Bal] => End(b.foldRight(Bal(0F))(_ + _) )},balLook,a)},acctLook,l))
+       numLook(i)(scatter(acctLook,{scatter(balLook,{b:List[Bal] => End(b.foldRight(Bal(0F))(_ + _) )})}))
    }
 } 
 
