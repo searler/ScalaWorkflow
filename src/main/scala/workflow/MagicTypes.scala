@@ -23,7 +23,7 @@ trait Terminal extends RPF{
    def apply(ci:CI)= {case _ => Done}
 }
 
-object Done extends Terminal
+private object Done extends Terminal
 
 private class Wrapper[T](correlated:CI,fn:T=>RPF) extends RPF{
     def isDefinedAt(ci:CI) = ci == correlated
