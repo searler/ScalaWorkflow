@@ -7,7 +7,7 @@ case class CI(s:Int){
 
 trait RPF extends PartialFunction[CI, Any=>RPF]
 
-case class RPFCollection(list:Traversable[RPF]) extends RPF{
+private case class RPFCollection(list:Traversable[RPF]) extends RPF{
   def isDefinedAt(ci: CI): Boolean = list.exists(_.isDefinedAt(ci))
   def apply(ci:CI):Any=>RPF =  (list.filter(_.isDefinedAt(ci))).head.apply(ci)
   def toList = list toList
@@ -38,7 +38,7 @@ object Flow{
    def End[A](arg:A):RPF =  new Result(arg)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
 
-   def split(fa:RPF*) = {
+   def split(fa:RPF*):RPF = {
      new RPFCollection(fa)
    }
 
@@ -60,20 +60,20 @@ object Flow{
      counter _
    }
 
-    def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:Function1[D,RPF]) = {
+    def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:Function1[D,RPF]):RPF = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
      new RPFCollection(fa.map(pf=>pf(counter _)))
    }
 
-   def first[C](fa:(C=>RPF)=>RPF*)(result:C=>RPF) = { 
+   def first[C](fa:(C=>RPF)=>RPF*)(result:C=>RPF):RPF = { 
      var found = false
      def counter(arg:C):RPF = {if(found) {Done}; else {found = true;result(arg)}}
      new RPFCollection( fa.map(pf=>pf(counter _)))
    }
 
    // order of arrival
-    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF) = {
+    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF):RPF = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {buffer += arg; if(buffer.size == fa.size)result(buffer toList) else Done}
      new RPFCollection( fa.map(pf=>pf(counter _)))
@@ -86,14 +86,14 @@ object Flow{
      }
   }
 
-  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Function1[List[C],RPF]) = {
+  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Function1[List[C],RPF]):RPF = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
      def counter(index:Int)(arg:C):RPF = {buffer += index->arg; if(buffer.size == fa.size)result(SortedMap(buffer:_*).values.toList) else Done}
      new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
-  def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:Function1[(A,B),RPF]) = {
+  def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:Function1[(A,B),RPF]):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
      def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get)}
@@ -101,7 +101,7 @@ object Flow{
      new RPFCollection(List(fa(processA),fb(processB)))
   } 
 
-def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:Function1[(A,B,C),RPF]) = {
+def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:Function1[(A,B,C),RPF]):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
      var c:Option[C] = None
