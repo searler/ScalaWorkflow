@@ -79,7 +79,7 @@ object Flow{
      new RPFCollection(List(fa(processA),fb(processB)))
   } 
 
-def tupled3[A,B,C](result:Function1[(A,B,C),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF) = {
+def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:Function1[(A,B,C),RPF]) = {
      var a:Option[A] = None
      var b:Option[B] = None
      var c:Option[C] = None
