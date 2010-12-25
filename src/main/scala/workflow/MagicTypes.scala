@@ -65,7 +65,7 @@ object Flow{
      counter _
    }
 
-  def gather[C](require:Int)(result:List[C]=>RPF) = {
+  def gather[C](require:Int)(result:Traversable[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
         buffer += arg
@@ -105,7 +105,7 @@ object Flow{
    }
 
    // order of arrival
-    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF):RPF = {
+    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
          buffer += arg
@@ -117,7 +117,7 @@ object Flow{
      new RPFCollection( fa.map(pf=>pf(counter _)))
    }
 
-  def scatter[A,C](look:Lookup[A,C])(result:List[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
+  def scatter[A,C](look:Lookup[A,C])(result:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
         buffer += arg 
@@ -130,7 +130,7 @@ object Flow{
      }
   }
 
-  def ordered[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF):RPF = {
+  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
      def counter(index:Int)(arg:C):RPF = {
@@ -147,14 +147,14 @@ object Flow{
      var a:Option[A] = None
      var b:Option[B] = None
      def processA(arg:A):RPF = {
-         a= Some(arg)
+         a = Some(arg)
          if(b==None)
             Done 
          else 
             result(a.get->b.get)
      }
      def processB(arg:B):RPF = {
-         b= Some(arg)
+         b = Some(arg)
          if(a==None)
             Done
          else 
