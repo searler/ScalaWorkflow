@@ -18,7 +18,7 @@ trait Lookup[A,R] {
   def call(arg:A):CI
 }
 
-trait Terminal extends RPF{
+private trait Terminal extends RPF{
    def isDefinedAt(ci:CI) = false
    def apply(ci:CI)= {case _ => Done}
 }
