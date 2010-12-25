@@ -58,7 +58,7 @@ object Flow{
      counter _
    }
 
-    def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:Function1[D,RPF]):RPF = {
+    def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:D=>RPF):RPF = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
      new RPFCollection(fa.map(pf=>pf(counter _)))
@@ -84,14 +84,14 @@ object Flow{
      }
   }
 
-  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Function1[List[C],RPF]):RPF = {
+  def ordered[C](fa:(C=>RPF)=>RPF*)(result:List[C]=>RPF):RPF = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
      def counter(index:Int)(arg:C):RPF = {buffer += index->arg; if(buffer.size == fa.size)result(SortedMap(buffer:_*).values.toList) else Done}
      new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
-  def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:Function1[(A,B),RPF]):RPF = {
+  def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:((A,B))=>RPF):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
      def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get)}
@@ -99,7 +99,7 @@ object Flow{
      new RPFCollection(List(fa(processA),fb(processB)))
   } 
 
-def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:Function1[(A,B,C),RPF]):RPF = {
+def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:((A,B,C))=>RPF):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
      var c:Option[C] = None
