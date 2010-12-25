@@ -306,15 +306,10 @@ object SplitAny{
 
 object Conditional{
     def apply(s:String)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-     
-
       s match {
          case "one" => acctLook(Num("124-555-1234")){End}
          case "two" => acctLook(Num("333-555-1234")){balLook(_)(End)}
          case _ => End("unmatched")
       }
-  
-   
-
     }
 }
