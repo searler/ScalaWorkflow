@@ -71,7 +71,7 @@ object Flow{
      new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
-  def tupled2[A,B](result:Function1[(A,B),RPF])(fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF) = {
+  def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:Function1[(A,B),RPF]) = {
      var a:Option[A] = None
      var b:Option[B] = None
      def processA(arg:A):RPF = {a= Some(arg);if(b==None)Done else result(a.get->b.get)}

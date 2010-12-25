@@ -232,17 +232,17 @@ object SingleLineBalanceOrdered{
 
 object SingleLineBalanceTupled{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.tupled2(End)(
+      Flow.tupled2[Acct,Bal](
         c => acctLook(pn){c} ,
-        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+        c => acctLook(pn){a:Acct => balLook(a){c}}) (End)
   }
 }
 
 object SingleLineBalanceTupledString{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.tupled2({t:Tuple2[Acct,Bal] => End(t.toString)})(
+      Flow.tupled2[Acct,Bal](
         c => acctLook(pn){c} ,
-        c => acctLook(pn){a:Acct => balLook(a){c}}) 
+        c => acctLook(pn){a:Acct => balLook(a){c}}) ({t:Tuple2[Acct,Bal] => End(t.toString)})
   }
 }
 
