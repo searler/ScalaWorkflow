@@ -292,3 +292,14 @@ object SplitCollect{
       )
     }
 }
+
+object SplitAny{
+    def apply(s:String)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+    
+      val term = any[Acct](End)
+      split (
+         acctLook(Num("124-555-1234")){term},
+         acctLook(Num("333-555-1234")){term}
+      )
+    }
+}

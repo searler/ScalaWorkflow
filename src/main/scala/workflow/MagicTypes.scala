@@ -48,6 +48,12 @@ object Flow{
      counter _
    }
 
+   def any[R](result:R=>RPF) = {
+     var first = true
+     def counter(arg:R):RPF = {if(first){first = false;result(arg)};  else Done}
+     counter _
+   }
+
   def collect[C](require:Int)(result:List[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {buffer += arg; if(buffer.size == require)result(buffer toList) else Done}

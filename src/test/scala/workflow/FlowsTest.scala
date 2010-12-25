@@ -136,4 +136,8 @@ object FlowsTest extends Specification {
     ch(SplitCollect(_:String),"xxx",List(Acct("alpha"), Acct("beta")))
   }
 
+"SplitAny" in {
+    ch(SplitAny(_:String),"xxx",Acct("alpha"))
+  }
+
 }
