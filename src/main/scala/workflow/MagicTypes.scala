@@ -57,6 +57,12 @@ object Flow{
      new RPFCollection( fa.map(pf=>pf(counter _)))
    }
 
+  def scatter[A,C](result:List[C]=>RPF,look:Lookup[A,C],lst:Traversable[A]) = {
+     val buffer = new scala.collection.mutable.ListBuffer[C]() 
+     def counter(arg:C):RPF = {buffer += arg; if(buffer.size == lst.size)result(buffer toList) else Done}
+     new RPFCollection( lst.map(v=>look(v)(counter _)))
+  }
+
   def ordered[C](result:Function1[List[C],RPF])(fa:(C=>RPF)=>RPF*) = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 

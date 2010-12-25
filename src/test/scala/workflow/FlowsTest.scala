@@ -7,7 +7,7 @@ object FlowsTest extends Specification {
  import Services._
  import scala.actors.Actor._
 
-  private def ch[R](flow:Num=>RPF,n:Num,expected:R) {
+  private def ch[A,R](flow:A=>RPF,n:A,expected:R) {
     FlowActor(flow,n)
     receiveWithin(1000L){
        case b:R => b  must beEqualTo(expected)
@@ -89,7 +89,7 @@ object FlowsTest extends Specification {
   } 
 
 "exclusiveSplitJoinVarBeta" in {
-   ch(exclusiveSplitJoinVar(_),Num("333-555-1234"),Bal(1F))
+   ch(exclusiveSplitJoinVar(_:Num),Num("333-555-1234"),Bal(1F))
   } 
 
 "exclusiveSplitJoin" in { 
@@ -119,5 +119,9 @@ object FlowsTest extends Specification {
   "SingleLineBalanceFirst" in {
   check( SingleLineBalanceFirst(_))
   } 
+
+  "ListBalance" in {
+    ch(ListBalance(_:Int),123,Bal(125.5F))
+  }
 
 }
