@@ -32,8 +32,6 @@ private class Wrapper[T](correlated:CI,fn:T=>RPF) extends RPF{
 
 private case class Result[A](value:A) extends Terminal
 
-
-
 object Flow{
    def End[A](arg:A):RPF =  new Result(arg)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
