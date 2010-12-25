@@ -44,11 +44,10 @@ object Flow{
      new RPFCollection(fa.map(pf=>pf(counter _)))
    }
 
-   def first[C](fa:(C=>RPF)=>RPF*):(C=>RPF)=>RPF = { result:(C=>RPF) => {
+   def first[C](fa:(C=>RPF)=>RPF*)(result:C=>RPF) = { 
      var found = false
      def counter(arg:C):RPF = {if(found) {Done}; else {found = true;result(arg)}}
      new RPFCollection( fa.map(pf=>pf(counter _)))
-     }
    }
 
    // order of arrival
