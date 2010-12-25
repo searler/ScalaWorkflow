@@ -48,6 +48,12 @@ object Flow{
      counter _
    }
 
+  def collect[C](require:Int)(result:List[C]=>RPF) = {
+     val buffer = new scala.collection.mutable.ListBuffer[C]() 
+     def counter(arg:C):RPF = {buffer += arg; if(buffer.size == require)result(buffer toList) else Done}
+     counter _
+   }
+
     def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:Function1[D,RPF]) = {
      var count = fa size
      def counter(arg:C):RPF = {count-=1;if(count==0)result(f(arg));  else {f(arg);Done}}
