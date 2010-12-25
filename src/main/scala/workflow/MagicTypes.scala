@@ -167,9 +167,27 @@ def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:((
      var a:Option[A] = None
      var b:Option[B] = None
      var c:Option[C] = None
-     def processA(arg:A):RPF = {a= Some(arg);if(b==None||c==None)Done else result((a.get,b.get,c.get))}
-     def processB(arg:B):RPF = {b= Some(arg);if(a==None||c==None)Done else result((a.get,b.get,c.get))}
-     def processC(arg:C):RPF = {c= Some(arg);if(a==None||b==None)Done else result((a.get,b.get,c.get))}
+     def processA(arg:A):RPF = {
+         a= Some(arg)
+         if(b==None||c==None)
+            Done 
+         else 
+            result((a.get,b.get,c.get))
+     }
+     def processB(arg:B):RPF = {
+         b= Some(arg)
+         if(a==None||c==None)
+           Done
+         else 
+           result((a.get,b.get,c.get))
+     }
+     def processC(arg:C):RPF = {
+         c= Some(arg)
+         if(a==None||b==None)
+            Done 
+         else 
+            result((a.get,b.get,c.get))
+     }
      new RPFCollection(List(fa(processA),fb(processB),fc(processC)))
   } 
     
