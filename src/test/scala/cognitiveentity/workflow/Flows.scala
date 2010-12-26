@@ -14,6 +14,17 @@
  */
 
 /**
+ * Tests, based on a telecom problem domain
+ *
+ * Asynchronous services provide the following lookups
+ * id -> Phone numbers
+ * Phone number -> account number
+ * Account number -> balance (either credit or prepaid)
+ *
+ * Flows then wire these lookups together to represent 
+ * business logic
+ * 
+ *
  * @author Richard Searle
  */
 package cognitiveentity.workflow
