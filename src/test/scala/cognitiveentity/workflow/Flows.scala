@@ -224,15 +224,15 @@ object SingleLineBalanceOrEnd{
   }
 }
 
+/**
+ * Demonstrate usage of state and decomposed logic
+ */
 object exclusiveSplitJoinVar{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-
      var result:Bal = Bal(0F)
-
      def end = {End(result)}
      def next = {b:Bal => result = b;end}
     
-  
       acctLook(pn){_ match {
           case Acct("alpha")  => balLook(Acct("gamma"))(next)
           case _ @ a => balLook(a)(next)
@@ -241,14 +241,14 @@ object exclusiveSplitJoinVar{
   }
 }
 
-
+/**
+ * Demonstrate usage of state and decomposed logic
+ */
 object exclusiveSplitJoin{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-
       val end = {b:Bal => End(b+b)}
-     val next = {b:Bal => end(b)}
+      val next = {b:Bal => end(b)}
     
-  
       acctLook(pn){_ match {
           case Acct("alpha")  => balLook(Acct("alpha"))(next)
           case _ @ a => balLook(a)(next)
@@ -279,6 +279,9 @@ object SingleLineBalanceOr{
   }
 }
 
+/**
+ * Capture results in order of return from service
+ */
 object SingleLineBalanceAccummulate{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       Flow.accummulate[Bal](
@@ -287,7 +290,9 @@ object SingleLineBalanceAccummulate{
   }
 }
 
-
+/**
+ * Capture results are ordered list
+ */
 object SingleLineBalanceOrdered{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       Flow.ordered[Bal](
@@ -296,8 +301,9 @@ object SingleLineBalanceOrdered{
   }
 }
 
-
-
+/**
+ * Return two results as a tuple
+ */
 object SingleLineBalanceTupled{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       Flow.tupled2[Acct,Bal](
@@ -306,6 +312,9 @@ object SingleLineBalanceTupled{
   }
 }
 
+/**
+ * Capture two results as a tuple and return tuple as a string
+ */
 object SingleLineBalanceTupledString{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       Flow.tupled2[Acct,Bal](
@@ -314,7 +323,9 @@ object SingleLineBalanceTupledString{
   }
 }
 
-
+/**
+ * Return the first result received from any service
+ */
 object SingleLineBalanceFirst{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       Flow.first[Bal](
@@ -323,6 +334,9 @@ object SingleLineBalanceFirst{
   }
 }
 
+/**
+ * Demonstrate chaining of first
+ */
 object SingleLineBalanceFirstChained{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       first[Acct]( c => acctLook(pn){c}){a:Acct => first[Bal]{d=>balLook(a){d}} (End)}
