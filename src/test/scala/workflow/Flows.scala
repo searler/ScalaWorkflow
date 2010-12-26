@@ -266,7 +266,15 @@ object SingleLineBalanceFirstChained{
 
 object ListBalance{
    def apply(i:Int)(implicit numLook:Lookup[Int,List[Num]], acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-       numLook(i)(scatter(acctLook){scatter(balLook){b:Traversable[Bal] => End(b.foldRight(Bal(0F))(_ + _) )}})
+       numLook(i)(
+          scatter(acctLook){
+             scatter(balLook){
+                 b:Traversable[Bal] => End(
+                   b.foldRight(Bal(0F))(_ + _) 
+                 )
+              }
+          }
+       )
    }
 } 
 
