@@ -123,7 +123,7 @@ object Flow{
    }
 
    // order of arrival
-    def accummulate[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
+    def collect[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
          buffer += arg

@@ -284,7 +284,7 @@ object SingleLineBalanceOr{
  */
 object SingleLineBalanceAccummulate{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
-      Flow.accummulate[Bal](
+      Flow.collect[Bal](
         c => acctLook(pn){balLook(_){c}} ,
         c => acctLook(pn){balLook(_){c}}) (End)
   }
