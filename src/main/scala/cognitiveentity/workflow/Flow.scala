@@ -107,7 +107,11 @@ private object Done extends Terminal
  */
 private case class Result[A](value:A) extends Terminal
 
+/**
+ * Defines the functions that are used to assemble a flow
+ */
 object Flow{
+
    def End[A](arg:A):RPF =  new Result(arg)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
 
@@ -115,24 +119,24 @@ object Flow{
      new RPFCollection(fa)
    }
 
-   def join(require:Int)(result:Unit=>RPF) = {
+   def join(require:Int)(next:Unit=>RPF) = {
      var count = require
      def counter:RPF = {
          count-=1
          if(count==0)
-            result()
+            next()
          else 
             Done
      }
      counter _
    }
 
-   def any[R](result:R=>RPF) = {
+   def any[R](next:R=>RPF) = {
      var first = true
      def counter(arg:R):RPF = {
          if(first){
             first = false
-            result(arg)
+            next(arg)
          }
          else 
             Done
@@ -140,64 +144,68 @@ object Flow{
      counter _
    }
 
-  def gather[C](require:Int)(result:Traversable[C]=>RPF) = {
+  def gather[C](require:Int)(next:Traversable[C]=>RPF) = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
         buffer += arg
         if(buffer.size == require)
-           result(buffer toList)
+           next(buffer toList)
         else 
            Done
      }
      counter _
    }
 
-    def inject[C,D](f:C=>D)(fa:(C=>RPF)=>RPF*)(result:D=>RPF):RPF = {
-     var count = fa size
+    def inject[C,D](f:C=>D)(flows:(C=>RPF)=>RPF*)(next:D=>RPF):RPF = {
+     var count = flows size
      def counter(arg:C):RPF = {
-        count-=1
-        if(count==0)
-           result(f(arg))
+        count -= 1
+        if(count == 0)
+           next(f(arg))
         else {
            f(arg)
            Done
          }
      }
-     new RPFCollection(fa.map(pf=>pf(counter _)))
+     new RPFCollection(flows.map(pf=>pf(counter _)))
    }
-
-   def first[C](fa:(C=>RPF)=>RPF*)(result:C=>RPF):RPF = { 
+   
+   /**
+    * Evaluate n flows in parallel and feed 
+    * first result to be received to the next flow
+    */
+   def first[C](flows:(C=>RPF)=>RPF*)(next:C=>RPF):RPF = { 
      var found = false
      def counter(arg:C):RPF = {
         if(found) 
           Done
         else {
            found = true
-           result(arg)
+           next(arg)
          }
      }
-     new RPFCollection( fa.map(pf=>pf(counter _)))
+     new RPFCollection(flows.map(pf=>pf(counter _)))
    }
 
    // order of arrival
-    def collect[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
+    def collect[C](flows:(C=>RPF)=>RPF*)(next:Traversable[C]=>RPF):RPF = {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
          buffer += arg
-         if(buffer.size == fa.size)
-            result(buffer toList) 
+         if(buffer.size == flows.size)
+            next(buffer toList) 
          else 
             Done
      }
-     new RPFCollection( fa.map(pf=>pf(counter _)))
+     new RPFCollection( flows.map(pf=>pf(counter _)))
    }
 
-  def parallel[A,C](f:(C=>RPF)=>(A=>RPF))(result:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
+  def parallel[A,C](f:(C=>RPF)=>(A=>RPF))(next:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
         buffer += arg 
         if(buffer.size == lst.size)
-           result(buffer toList) 
+           next(buffer toList) 
         else 
            Done
      }
@@ -205,13 +213,13 @@ object Flow{
      }
   }
 
-
-  def scatter[A,C](look:Lookup[A,C])(result:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
+  
+  def scatter[A,C](look:Lookup[A,C])(next:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
      def counter(arg:C):RPF = {
         buffer += arg 
         if(buffer.size == lst.size)
-           result(buffer toList) 
+           next(buffer toList) 
         else 
            Done
      }
@@ -221,19 +229,22 @@ object Flow{
 
  
 
-  def ordered[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
+  def ordered[C](flows:(C=>RPF)=>RPF*)(next:Traversable[C]=>RPF):RPF = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
      def counter(index:Int)(arg:C):RPF = {
          buffer += index->arg
-         if(buffer.size == fa.size)
-            result(SortedMap(buffer:_*).values.toList)
+         if(buffer.size == flows.size)
+            next(SortedMap(buffer:_*).values.toList)
          else 
              Done
      }
-     new RPFCollection( fa.zipWithIndex.map(p=>p._1(counter(p._2) _)))
+     new RPFCollection( flows.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
+  /**
+   * Evaluate two flows in parallel and record their responses in a tuple
+   */
   def tupled2[A,B](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF)(result:((A,B))=>RPF):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
@@ -254,6 +265,9 @@ object Flow{
      new RPFCollection(List(fa(processA),fb(processB)))
   } 
 
+  /**
+   * Evaluate three flows in parallel and record their responses in a tuple
+   */
 def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:((A,B,C))=>RPF):RPF = {
      var a:Option[A] = None
      var b:Option[B] = None
@@ -282,5 +296,4 @@ def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:((
      new RPFCollection(List(fa(processA),fb(processB),fc(processC)))
   } 
     
-
 }
