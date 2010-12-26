@@ -128,6 +128,10 @@ object FlowsTest extends Specification {
     ch(ListBalance(_:Int),123,Bal(125.5F))
   }
 
+  "ParallelIdentity" in {
+    ch(ParallelIdentity(_:Int),123,List(Acct("alpha"), Acct("beta")))
+  }
+
     "SplitJoin" in {
     ch(SplitJoin(_:String),"xxx",(Acct("alpha"),Acct("beta")))
   }

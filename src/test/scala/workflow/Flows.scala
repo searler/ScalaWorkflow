@@ -278,6 +278,16 @@ object ListBalance{
    }
 } 
 
+object ParallelIdentity{
+   def apply(i:Int)(implicit numLook:Lookup[Int,List[Num]], acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       numLook(i)(
+          parallel{a:Acct=>a}(acctLook){
+             End
+          }
+       )
+   }
+} 
+
 object SplitJoin{
     def apply(s:String)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
       var a1:Acct = null

@@ -130,6 +130,19 @@ object Flow{
      }
   }
 
+  def parallel[A,C,D](f:C=>D)(look:Lookup[A,C])(result:Traversable[D]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
+     val buffer = new scala.collection.mutable.ListBuffer[D]() 
+     def counter(arg:C):RPF = {
+        buffer += f(arg) 
+        if(buffer.size == lst.size)
+           result(buffer toList) 
+        else 
+           Done
+     }
+     new RPFCollection( lst.map(v=>look(v)(counter _)))
+     }
+  }
+
   def ordered[C](fa:(C=>RPF)=>RPF*)(result:Traversable[C]=>RPF):RPF = {
       import scala.collection.immutable._
      val buffer = new scala.collection.mutable.ListBuffer[(Int,C)]() 
