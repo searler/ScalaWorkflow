@@ -14,20 +14,38 @@
  */
 
 /**
+ * Example domain classes for test cases
+ *
  * @author Richard Searle
  */
 package cognitiveentity.workflow
 
+/**
+ * A phone number
+ */
 case class Num(s:String)
 
+/**
+ * An account number
+ */
 case class Acct(s:String)
 
+/**
+ * Common trait for Bal and PP to
+ * demonstrate polymorphism
+ */
 trait BalanceLike{
  def v:Float
 }
 
+/**
+ * An Account balance
+ */
 case class Bal(v:Float) extends BalanceLike{
     def +(o:Bal) = Bal(v+o.v)
 }
 
+/**
+ * A Prepaid balance
+ */
 case class PP(v:Float) extends BalanceLike

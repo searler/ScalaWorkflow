@@ -25,6 +25,10 @@ object FlowsTest extends Specification {
  import Services._
  import scala.actors.Actor._
 
+ /**
+  * Common test code for a flow that accepts an A and
+  * returns an R
+  */ 
   private def ch[A,R](flow:A=>RPF,n:A,expected:R) {
     FlowActor(flow,n)
     receiveWithin(1000L){
@@ -34,8 +38,15 @@ object FlowsTest extends Specification {
       }
  }
 
+ /**
+  * Test a flow that takes Num("124-555-1234") and returns an R
+  */
  private def chk[R](flow:Num=>RPF,expected:R) =ch(flow,Num("124-555-1234"),expected)
 
+ /**
+  * Test a flow that takes a Num and returns a Bal, with a default
+  * of Bal(124.5F)
+  */
  private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
 
 "oneLineBalanceSelf" in {
@@ -43,7 +54,8 @@ object FlowsTest extends Specification {
   } 
 
 "oneLineBalanceSelfPartial" in {
-   check(SingleLineBalance(_:Num)(new LookupSelf(acctMap), new LookupSelf(balMap)))
+   //(_) is needed to provide the function and not its return value
+   check(SingleLineBalance(_)(new LookupSelf(acctMap), new LookupSelf(balMap)))
   } 
 
   "oneLineBalance" in {
@@ -55,7 +67,7 @@ object FlowsTest extends Specification {
  } 
 
 "oneLineBalanceOrEnd" in { 
-   check( SingleLineBalanceOrEnd(_))
+   check( SingleLineBalanceOrEnd(_),Bal(11F))
   } 
 
  "oneLineBalanceAsTwo" in { 
@@ -95,7 +107,7 @@ object FlowsTest extends Specification {
   } 
 
 "twoLineBalanceDoubledInline" in { 
-  check( TwoLineBalanceDoubledInline(_),Bal(498.0F) )
+  check( TwoLineBalanceDoubledInline(_),Bal(511F) )
   } 
 
 "PrepaidAndBalance" in {  
@@ -107,6 +119,7 @@ object FlowsTest extends Specification {
   } 
 
 "exclusiveSplitJoinVarBeta" in {
+   //Num type must be explicitly specified
    ch(exclusiveSplitJoinVar(_:Num),Num("333-555-1234"),Bal(1F))
   } 
 
