@@ -18,36 +18,93 @@
  */
 package cognitiveentity.workflow
 
-
-case class CI(s:Int){
-   def apply[R](fn:R =>RPF):RPF = new Wrapper(this,fn)
+/**
+ * The CI is the "correlation id" that links the response returned from
+ * a service with the PartialFunction that will process it.
+ *
+ * apply() takes an RPF representing the portion of the flow
+ * that will handle the response that matches the id and
+ * wraps both the id and RPF into a Pending.
+ */
+case class CI(id:Int){
+   def apply[R](fn:R =>RPF):RPF = new Pending(this,fn)
 }
 
+/**
+ * An RPF that represents a portion of a flow that will execute when
+ * the response matching the correlationId is received. 
+ *
+ * The RPF is only defined for specified correlationId
+ *
+ * apply() returns a function that casts the response to
+ * the expected type and evaluates the flow portion to
+ * compute the next RPF
+ */
+private class Pending[T](correlationId:CI,fn:T=>RPF) extends RPF{
+    def isDefinedAt(ci:CI) = ci == correlationId
+    def apply(ci:CI) =  {a:Any=>fn(a.asInstanceOf[T])}
+}
+
+/**
+ * An RPF is a Recursive Partial Function
+ * that is defined for a single CI instance
+ * and provides function that computes the next
+ * RPF in the flow given the response associated
+ * with the CI.
+ */
 trait RPF extends PartialFunction[CI, Any=>RPF]
 
+/**
+ * RPFCollection is both an RPF and a simple collection of RPFs.
+ *
+ * It acts as an RPF when referenced from within the flow
+ * implementation. In that case, it is defined if any
+ * of the contained RPFs is defined for that argument.
+ * Its apply is delegated to that RPF that is defined for the argument.
+ * This logic is not expected to actually be implemented but
+ * RPFCollection must implement RPF to satisfy the type signatures.
+ * A valid implementation avoids unpleasant surprises and provides
+ * generality.
+ *
+ * It acts as simple collection when transporting multiple RPFs
+ * back to the FlowActor. 
+ */
 private case class RPFCollection(list:Traversable[RPF]) extends RPF{
   def isDefinedAt(ci: CI): Boolean = list.exists(_.isDefinedAt(ci))
   def apply(ci:CI):Any=>RPF =  (list.filter(_.isDefinedAt(ci))).head.apply(ci)
   def toList = list toList
 }
 
+/**
+ * The Lookup trait represents the generic form of an async call to
+ * an external service.
+ */
 trait Lookup[A,R] {
-  def apply(arg:A)(fn:R =>RPF):RPF = new Wrapper(call(arg),fn)
+  def apply(arg:A)(fn:R =>RPF):RPF = new Pending(call(arg),fn)
   def call(arg:A):CI
 }
 
+/**
+ * The endpoint of a (sub)flow, which has no further processing.
+ * It does not match any CI.
+ * apply should thus never be called (but a sensible fallback
+ * value is returned)
+ */
 private trait Terminal extends RPF{
    def isDefinedAt(ci:CI) = false
    def apply(ci:CI)= {case _ => Done}
 }
 
+/**
+ * Represents the completion of a subflow (generally an intermediate instance of
+ * parallel subflows)
+ * It only exists because all RPFs have to return another RPF. 
+ */
 private object Done extends Terminal
 
-private class Wrapper[T](correlated:CI,fn:T=>RPF) extends RPF{
-    def isDefinedAt(ci:CI) = ci == correlated
-    def apply(ci:CI)=  { a:Any=>fn(a.asInstanceOf[T])}
-}
-
+/**
+ * The final result of the entire flow
+ */
 private case class Result[A](value:A) extends Terminal
 
 object Flow{
