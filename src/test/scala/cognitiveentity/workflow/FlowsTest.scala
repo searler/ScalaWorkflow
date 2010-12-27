@@ -47,6 +47,7 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
    check(SingleLineBalance(_))
   } 
 
+
 "oneLineBalanceAsPartial" in {
   check( SingleLineBalanceAsPartial(_))
  } 
