@@ -30,7 +30,7 @@ object FlowsTest extends Specification {
   * returns an R
   */ 
   private def ch[A,R](flow:A=>RPF,n:A,expected:R) {
-    FlowActor(flow,n)
+    ScalaFlowActor(flow,n)
     receiveWithin(1000L){
        case b:R => b  must beEqualTo(expected)
        case scala.actors.TIMEOUT => fail("timeout")

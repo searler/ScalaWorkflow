@@ -19,34 +19,28 @@
 package cognitiveentity.workflow
 
 /**
- * The FlowActor provides a Scala actor based implementation of
+ * The FlowActor provides common  actor based implementation of
  * a flow.
  *
  * An new instance is created for each flow invocation, since each
  * has unique state.
  */ 
-private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
+protected abstract class FlowActor[A](flow:A=>RPF){
   /**
    * Represents service calls for which a response still required
    */
   var pfs:List[RPF] = Nil
 
-  /**
-   *  Actor which created this instance and will receive the
-   *  final result
-   */
-  var originator:Option[scala.actors.OutputChannel[Any]] = None
+  
 
   /**
    * Event driven processing of incoming messages.
    */
-  def act(){
-     loop {
-       react {
+   def receive:PartialFunction[Any,Unit] = {
          case (ci:CI,r:Any) => process(ci,r)
          case arg:A => { 
                         //start 
-                        originator = Some(sender)
+                        recordOriginator
                         flow(arg) match {
                               case r:Result[_] => complete(r)
                               case rc:RPFCollection => pfs = rc toList
@@ -54,9 +48,9 @@ private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
                             }
                      }
         case _ @ x=> throw new IllegalArgumentException(x toString)
-       }
-     }
-  }
+   }
+
+   def recordOriginator
 
   /**
    * Process response from service "call".
@@ -84,22 +78,6 @@ private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
    * Flow is complete.
    * Return value to initiator and stop
    */
-  private def complete(r:Result[_]){
-     originator.get ! r.value //respond to creator
-     exit  //stop actor
-  }
+  def complete(r:Result[_])
 }
 
-/**
- * Create an Actor to execute the flow, with its initial value.
- *
- * The initial value is sent as a message so the flow initialization
- * occurs on a different thread.
- */
-object FlowActor {
-  def apply[A](flow:A=>RPF,initial:A) = {
-      val a = new FlowActor(flow)
-      a.start
-      a ! initial
-  }
-}
