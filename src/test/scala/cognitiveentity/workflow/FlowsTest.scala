@@ -20,75 +20,28 @@ package cognitiveentity.workflow
 
 import org.specs._
 
-object FlowsTest extends Specification {
+abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) extends Specification {
 
- import Services._
- import scala.actors.Actor._
-
-
- /**
- * Perform the lookup and send the value to invoker.
- * Useful for unit testing
- */
-class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
-   def call(arg:A):CI = {
-       val ci = CorrelationAllocator()
-       scala.actors.Actor.self ! (ci,values(arg))
-       ci
-    }
-}
-
-implicit object numLook extends LookupSelf(numMap)
-implicit object acctLook extends LookupSelf(acctMap)
-implicit object balLook extends LookupSelf(balMap)
-implicit object ppLook extends LookupSelf(prepaidMap)
-
-
-/**
- * Delegate the lookup to the specified Actor.
- * Represents a more realistic scenario
- */ 
-class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def call(arg:A):CI = {
-        val ci = CorrelationAllocator()
-        service ! (ci,arg)
-        ci
-    }
-}
 
 
  /**
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-  private def ch[A,R](flow:A=>RPF,n:A,expected:R) {
-    ScalaFlowActor(flow,n)
-    receiveWithin(1000L){
-       case b:R => b  must beEqualTo(expected)
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
- }
+  protected def ch[A,R](flow:A=>RPF,n:A,expected:R) 
 
  /**
   * Test a flow that takes Num("124-555-1234") and returns an R
   */
- private def chk[R](flow:Num=>RPF,expected:R) =ch(flow,Num("124-555-1234"),expected)
+  protected def chk[R](flow:Num=>RPF,expected:R) =ch(flow,Num("124-555-1234"),expected)
 
  /**
   * Test a flow that takes a Num and returns a Bal, with a default
   * of Bal(124.5F)
   */
- private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
+ protected def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
 
-"oneLineBalanceSelf" in {
-   check(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)))
-  } 
 
-"oneLineBalanceSelfPartial" in {
-   //(_) is needed to provide the function and not its return value
-   check(SingleLineBalance(_)(new LookupSelf(acctMap), new LookupSelf(balMap)))
-  } 
 
   "oneLineBalance" in {
    check(SingleLineBalance(_))

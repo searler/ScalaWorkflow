@@ -20,8 +20,6 @@ package cognitiveentity.workflow
 
 import org.specs._
 
-object ScalaServiceActorFlowsTest extends Specification {
-
  import Services._
  import scala.actors.Actor._
 
@@ -29,7 +27,7 @@ object ScalaServiceActorFlowsTest extends Specification {
  * Delegate the lookup to the specified Actor.
  * Represents a more realistic scenario
  */ 
-class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
+private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     val service = new scala.actors.Actor{
      def act = {
      loop {
@@ -46,41 +44,12 @@ class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     }
 }
  
-implicit object numLook extends LookupActor(numMap)
-implicit object acctLook extends LookupActor(acctMap)
-implicit object balLook extends LookupActor(balMap)
-implicit object ppLook extends LookupActor(prepaidMap)
+ private object numLookat extends LookupActor(numMap)
+ private object acctLookat extends LookupActor(acctMap)
+ private object balLookat extends LookupActor(balMap)
+ private object ppLookat extends LookupActor(prepaidMap)
 
- /**
-  * Common test code for a flow that accepts an A and
-  * returns an R
-  */ 
-  private def ch[A,R](flow:A=>RPF,n:A,expected:R) {
-    ScalaFlowActor(flow,n)
-    receiveWithin(1000L){
-       case b:R => b  must beEqualTo(expected)
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
-      }
- }
+object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with ScalaFlowActorImplementation {
 
- /**
-  * Test a flow that takes Num("124-555-1234") and returns an R
-  */
- private def chk[R](flow:Num=>RPF,expected:R) =ch(flow,Num("124-555-1234"),expected)
-
- /**
-  * Test a flow that takes a Num and returns a Bal, with a default
-  * of Bal(124.5F)
-  */
- private def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
-
-  "oneLineBalance" in {
-   check(SingleLineBalance(_))
-  } 
-
-
- "twoLineBalance" in {
-   check( TwoLineBalance(_),Bal(249F))
-  } 
+ 
 }
