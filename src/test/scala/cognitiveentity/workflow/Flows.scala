@@ -29,7 +29,6 @@
  */
 package cognitiveentity.workflow
 
-import Services._
 import Flow._
 
 /**

@@ -26,30 +26,6 @@ private object CorrelationAllocator{
 object Services{
 
 /**
- * Delegate the lookup to the specified Actor.
- * Represents a more realistic scenario
- */ 
-class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
-    def call(arg:A):CI = {
-        val ci = CorrelationAllocator()
-        service ! (ci,arg)
-        ci
-    }
-}
-
-/**
- * Perform the lookup and send the value to invoker.
- * Useful for unit testing
- */
-class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
-   def call(arg:A):CI = {
-       val ci = CorrelationAllocator()
-       scala.actors.Actor.self ! (ci,values(arg))
-       ci
-    }
-}
-
-/**
  * Standard values for test purposes
  */
 val numMap = Map(123->List(Num("124-555-1234"),Num("333-555-1234"))) //external id->Num(s)
@@ -60,9 +36,6 @@ val balMap = Map(Acct("alpha") -> Bal(124.5F),
                  Acct("gamma") -> Bal(11.0F))
 val prepaidMap = Map(Acct("alpha") -> PP(124.5F))
 
-implicit object numLook extends LookupSelf(numMap)
-implicit object acctLook extends LookupSelf(acctMap)
-implicit object balLook extends LookupSelf(balMap)
-implicit object ppLook extends LookupSelf(prepaidMap)
+
   
 }

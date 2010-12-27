@@ -25,6 +25,38 @@ object FlowsTest extends Specification {
  import Services._
  import scala.actors.Actor._
 
+
+ /**
+ * Perform the lookup and send the value to invoker.
+ * Useful for unit testing
+ */
+class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
+   def call(arg:A):CI = {
+       val ci = CorrelationAllocator()
+       scala.actors.Actor.self ! (ci,values(arg))
+       ci
+    }
+}
+
+implicit object numLook extends LookupSelf(numMap)
+implicit object acctLook extends LookupSelf(acctMap)
+implicit object balLook extends LookupSelf(balMap)
+implicit object ppLook extends LookupSelf(prepaidMap)
+
+
+/**
+ * Delegate the lookup to the specified Actor.
+ * Represents a more realistic scenario
+ */ 
+class LookupActor[A,R](service: scala.actors.Actor) extends Lookup[A,R]{
+    def call(arg:A):CI = {
+        val ci = CorrelationAllocator()
+        service ! (ci,arg)
+        ci
+    }
+}
+
+
  /**
   * Common test code for a flow that accepts an A and
   * returns an R
