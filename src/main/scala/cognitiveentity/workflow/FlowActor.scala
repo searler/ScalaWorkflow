@@ -35,10 +35,10 @@ private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
    *  Actor which created this instance and will receive the
    *  final result
    */
-  var originator:scala.actors.OutputChannel[Any] = _
+  var originator:Option[scala.actors.OutputChannel[Any]] = None
 
   /**
-   * Event driven processing onf incoming messages.
+   * Event driven processing of incoming messages.
    */
   def act(){
      loop {
@@ -46,7 +46,7 @@ private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
          case (ci:CI,r:Any) => process(ci,r)
          case arg:A => { 
                         //start 
-                        originator = sender
+                        originator = Some(sender)
                         flow(arg) match {
                               case r:Result[_] => complete(r)
                               case rc:RPFCollection => pfs = rc toList
@@ -85,7 +85,7 @@ private class FlowActor[A](flow:A=>RPF) extends scala.actors.Actor{
    * Return value to initiator and stop
    */
   private def complete(r:Result[_]){
-     originator ! r.value //respond to creator
+     originator.get ! r.value //respond to creator
      exit  //stop actor
   }
 }
