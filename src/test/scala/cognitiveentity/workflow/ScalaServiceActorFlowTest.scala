@@ -18,8 +18,6 @@
  */
 package cognitiveentity.workflow
 
-import org.specs._
-
  import Services._
  import scala.actors.Actor._
 
@@ -29,14 +27,15 @@ import org.specs._
  */ 
 private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     val service = new scala.actors.Actor{
-     def act = {
-     loop {
-       react {
-         case(id:CI,a:A) => sender ! (id,values(a))
+       def act = {
+          loop {
+             react {
+               case(id:CI,a:A) => sender ! (id,values(a))
+             }
+          }
        }
-     }
-     }
     }.start
+ 
     def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
@@ -49,7 +48,6 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
  private object balLookat extends LookupActor(balMap)
  private object ppLookat extends LookupActor(prepaidMap)
 
-object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with ScalaFlowActorImplementation {
+ object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with ScalaFlowActorImplementation {
 
- 
 }
