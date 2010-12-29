@@ -18,9 +18,9 @@
  */
 package cognitiveentity.workflow.akka
 
- import _root_.cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest}
+ import cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest}
 
- import _root_.cognitiveentity.workflow.Services._
+ import cognitiveentity.workflow.Services._
 
  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 
