@@ -54,29 +54,15 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   * returns an R
   */ 
   protected def ch[A,R](flow:A=>RPF,initial:A,expected:R) {
-   val runner = akka.actor.Actor.actorOf(
-      new akka.actor.Actor{
-         var respondTo:akka.actor.Channel[Any] = _
-         def receive = {
-           case "START" => {
-              respondTo = self.channel
-              val a = akka.actor.Actor.actorOf(new AkkaFlowActor(flow))
-              a.start
-              current set a
-              a ! initial
-          }
-          case r:R => respondTo ! r
-         }
-     }  
-    )
-    runner start
-   
-     val response = runner !! "START"
+     val a = akka.actor.Actor.actorOf(new AkkaFlowActor(flow))
+     a.start
+     current set a
+             
+     val response = a !! initial
      response match {
         case Some(b:R) => b  must beEqualTo(expected)
         case _ @ x=> fail(x toString)
      }
-     runner stop
-  
+
    }
 }

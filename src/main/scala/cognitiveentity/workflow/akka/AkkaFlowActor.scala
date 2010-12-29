@@ -31,38 +31,21 @@ private class AkkaFlowActor[A](flow:A=>RPF) extends FlowActor(flow) with akka.ac
   
 
   /**
-   *  Actor which created this instance and will receive the
-   *  final result
+   *  Channel which final result is sent
    */
-  var originator:Option[akka.actor.ActorRef] = None
-
-
+  var originator:akka.actor.Channel[Any] = _
 
   /**
    * Flow is complete.
    * Return value to initiator and stop
    */
   def complete(r:Result[_]){
-     originator.get ! r.value //respond to creator
+     originator ! r.value //respond to creator
      self.stop  //stop actor
   }
 
   def recordOriginator {
-     originator = self.sender
+     originator = self.channel
   }
 }
 
-/**
- * Create an Actor to execute the flow, with its initial value.
- *
- * The initial value is sent as a message so the flow initialization
- * occurs on a different thread.
- */
-object AkkaFlowActor {
-  def apply[A](flow:A=>RPF,initial:A) = {
-      val a = akka.actor.Actor.actorOf(new AkkaFlowActor(flow))
-      a.start
-      //a ! initial
-      a
-  }
-}
