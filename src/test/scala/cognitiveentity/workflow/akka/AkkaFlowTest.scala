@@ -22,13 +22,13 @@ package cognitiveentity.workflow.akka
 
  import cognitiveentity.workflow.Services._
 
- object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
+private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 
  /**
  * Delegate the lookup to the specified Actor.
  * Represents a more realistic scenario
  */ 
-class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
+private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     class ServiceActor extends  akka.actor.Actor{
       def receive = {
         case (id:CI,a:A) => current.get ! (id->values(a))
