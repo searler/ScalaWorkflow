@@ -25,7 +25,7 @@ package cognitiveentity.workflow
  * An new instance is created for each flow invocation, since each
  * has unique state.
  */ 
-protected abstract class FlowActor[A](flow:A=>RPF){
+protected abstract class FlowActor{
   /**
    * Represents service calls for which a response still required
    */
@@ -38,16 +38,16 @@ protected abstract class FlowActor[A](flow:A=>RPF){
    */
    def receive:PartialFunction[Any,Unit] = {
          case (ci:CI,r:Any) => process(ci,r)
-         case arg:A => { 
+         case generator:(()=>RPF) => { 
                         //start 
                         recordOriginator
-                        flow(arg) match {
+                        generator() match {
                               case r:Result[_] => complete(r)
                               case rc:RPFCollection => pfs = rc toList
                               case _ @ x => pfs = x :: Nil 
                             }
                      }
-        case _ @ x=> throw new IllegalArgumentException(x toString)
+         case _ @ x=> throw new IllegalArgumentException(x toString)
    }
 
    def recordOriginator

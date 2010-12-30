@@ -25,7 +25,7 @@ package cognitiveentity.workflow
  * An new instance is created for each flow invocation, since each
  * has unique state.
  */ 
-private class ScalaFlowActor[A](flow:A=>RPF) extends FlowActor(flow) with scala.actors.Actor   {
+private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
  
 
   /**
@@ -67,8 +67,8 @@ private class ScalaFlowActor[A](flow:A=>RPF) extends FlowActor(flow) with scala.
  */
 object ScalaFlowActor {
   def apply[A](flow:A=>RPF,initial:A) = {
-      val a = new ScalaFlowActor(flow)
+      val a = new ScalaFlowActor
       a.start
-      a ! initial
+      a ! {() =>flow(initial)}
   }
 }

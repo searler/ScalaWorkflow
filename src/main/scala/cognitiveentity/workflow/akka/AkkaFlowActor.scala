@@ -27,7 +27,7 @@ import _root_.cognitiveentity.workflow.{RPF,CI,Result,Done,RPFCollection,FlowAct
  * An new instance is created for each flow invocation, since each
  * has unique state.
  */ 
-private class AkkaFlowActor[A](flow:A=>RPF) extends FlowActor(flow) with akka.actor.Actor{
+private class AkkaFlowActor extends FlowActor with akka.actor.Actor{
   
 
   /**
