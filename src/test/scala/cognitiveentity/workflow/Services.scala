@@ -18,10 +18,7 @@
  */
 package cognitiveentity.workflow
 
-private object CorrelationAllocator{
-   val id = new java.util.concurrent.atomic.AtomicInteger
-   def apply() = CI(id.incrementAndGet)
-}
+
 
 object Services{
 

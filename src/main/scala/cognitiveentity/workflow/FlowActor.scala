@@ -85,3 +85,8 @@ protected abstract class FlowActor{
 
 case class Trigger[A](initial:A)
 
+object CorrelationAllocator{
+   val id = new java.util.concurrent.atomic.AtomicInteger
+   def apply() = CI(id.incrementAndGet)
+}
+

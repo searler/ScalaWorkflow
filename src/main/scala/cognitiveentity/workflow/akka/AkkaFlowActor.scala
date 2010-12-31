@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow.akka
 
-import _root_.cognitiveentity.workflow.{RPF,CI,Result,Done,RPFCollection,FlowActor}
+import _root_.cognitiveentity.workflow.{RPF,CI,CorrelationAllocator,Result,Done,RPFCollection,FlowActor,Lookup}
 
 /**
  * The AkkaFlowActor provides a Akka actor based implementation of
@@ -28,7 +28,16 @@ import _root_.cognitiveentity.workflow.{RPF,CI,Result,Done,RPFCollection,FlowAct
  * has unique state.
  */ 
 private class AkkaFlowActor extends FlowActor with akka.actor.Actor{
-  
+   self.start
+  def get[A,R](service:akka.actor.ActorRef) = {
+     new Lookup[A,R]{
+        def call(arg:A):CI = {
+        val ci = CorrelationAllocator()
+        service ! (ci,arg)
+        ci
+       }
+     }     
+  }
 
   /**
    *  Channel which final result is sent

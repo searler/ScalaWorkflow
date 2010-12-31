@@ -55,7 +55,7 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   */ 
   protected def ch[A,R](flow:A=>RPF,initial:A,expected:R) {
      val a = akka.actor.Actor.actorOf[AkkaFlowActor]
-     a.start
+    // a.start
      current set a
              
      val response = a !! {() => flow(initial)}

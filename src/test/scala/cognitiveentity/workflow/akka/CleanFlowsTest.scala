@@ -34,20 +34,7 @@ object Service{
   val sa = akka.actor.Actor.actorOf[Service].start
 }
 
-private abstract class BaseAkkaFlowActor extends AkkaFlowActor{  
-   self.start
-  def get[A,R](service:akka.actor.ActorRef) = {
-     new Lookup[A,R]{
-        def call(arg:A):CI = {
-        val ci = CorrelationAllocator()
-        service ! (ci,arg)
-        ci
-       }
-     }     
-  }
-}
- 
-private class SwitchingAkkaFlowActor extends BaseAkkaFlowActor{  
+private class SwitchingAkkaFlowActor extends AkkaFlowActor{  
  
  override def create(a:Any):(()=>RPF) = {
      cs(a)
