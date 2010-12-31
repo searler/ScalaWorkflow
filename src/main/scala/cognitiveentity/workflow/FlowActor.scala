@@ -38,8 +38,7 @@ protected abstract class FlowActor{
    */
    def receive:PartialFunction[Any,Unit] = {
          case (ci:CI,r:Any) => process(ci,r)
-         case generator:(()=>RPF) => { 
-                        //start 
+         case generator:(()=>RPF) => {
                         recordOriginator
                         generator() match {
                               case r:Result[_] => complete(r)
@@ -47,8 +46,11 @@ protected abstract class FlowActor{
                               case _ @ x => pfs = x :: Nil 
                             }
                      }
-         case _ @ x=> throw new IllegalArgumentException(x toString)
+         case Some(a) => receive(create(a))
+         case _ @ x=>throw new IllegalArgumentException(x toString)
    }
+
+   def create(a:Any):(()=>RPF) =  null
 
    def recordOriginator
 
