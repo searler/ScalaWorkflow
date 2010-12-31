@@ -18,68 +18,53 @@
  */
 package cognitiveentity.workflow.akka
 
- import cognitiveentity.workflow.{CI,Lookup,Bal,PP,Acct,Num,RPF,CorrelationAllocator,FlowsTest,Trigger}
+import cognitiveentity.workflow.{Bal,PP,Acct,Num}
 
-
- import cognitiveentity.workflow.Services._
-
-class Service extends akka.actor.Actor{
+private class Service extends akka.actor.Actor{
+   import cognitiveentity.workflow.CI
+   import cognitiveentity.workflow.Services._
    def receive = {
-     case (ci:CI,id:Int)=> self.reply((ci,List(Num("ABA"))))
-     case (ci:CI,num:Num) => self.reply((ci,Acct("acct")))
-    case (ci:CI,acct:Acct) => self.reply((ci,Bal(133F)))
+     case (ci:CI,id:Int)    => self.reply((ci,numMap(id)))
+     case (ci:CI,num:Num)   => self.reply((ci,acctMap(num)))
+     case (ci:CI,acct:Acct) => self.reply((ci,balMap(acct)))
    }
 }
  
-object Service{
+private object Service{
   val sa = akka.actor.Actor.actorOf[Service].start
 }
 
-private class SwitchingAkkaFlowActor extends AkkaFlowActor{  
+private class Launcher extends AkkaFlowActor{  
  
- override def create(a:Any) = {
-     cs(a)
-   }
+  override def create(a:Any) =  cs(a)
   
-
-import Service._
+  import Service._
   
   implicit val callNum = get[Int,List[Num]](sa)
   implicit val callAcct = get[Num,Acct](sa)
   implicit val callBal = get[Acct,Bal](sa)
   implicit val callPP = get[Acct,PP](sa)
 
-  val cs = new FlowsSwitch
+  val cs = new cognitiveentity.workflow.FlowsSwitch
 }
 
-
- class FlowsSwitch(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) {
-   import cognitiveentity.workflow.Flow._
-   def apply(a:Any) = {
-      a match {
-         case id:Int =>   numLook(id)(End)
-         case num:Num => cognitiveentity.workflow.SingleLineBalance(num)
-      }
-   }
- }
-
- object Launcher {
+object Launcher {
+   import cognitiveentity.workflow.Trigger
    def apply[A](initial:A) = {
-     val actRef = akka.actor.Actor.actorOf[SwitchingAkkaFlowActor]
+     val actRef = akka.actor.Actor.actorOf[Launcher]
      actRef !! Trigger(initial)
    }
- } 
+} 
 
- import org.specs._
 
- object LauncherTest extends Specification {
+object LauncherTest extends org.specs.Specification {
     "num" in  {
-     Some(List(Num("ABA")))  must beEqualTo(Launcher(134))
+     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(Launcher(123))
     }
 
     "bal" in  {
-     Some(Bal(133F))  must beEqualTo(Launcher(Num("ABA")))
+     Some(Bal(124.5F))  must beEqualTo(Launcher(Num("124-555-1234")))
     }
- }
+}
 
 
