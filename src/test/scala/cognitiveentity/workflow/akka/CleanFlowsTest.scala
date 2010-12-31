@@ -27,6 +27,7 @@ class Service extends akka.actor.Actor{
    def receive = {
      case (ci:CI,id:Int)=> self.reply((ci,List(Num("ABA"))))
      case (ci:CI,num:Num) => self.reply((ci,Acct("acct")))
+    case (ci:CI,acct:Acct) => self.reply((ci,Bal(133F)))
    }
 }
  
@@ -57,7 +58,7 @@ import Service._
    def apply(a:Any) = {
       a match {
          case id:Int => { ()=>numLook(id)(End)}
-         case num:Num => {() => acctLook(num)(End)}
+         case num:Num => { ()=> cognitiveentity.workflow.SingleLineBalance(num)}
       }
    }
  }
@@ -72,12 +73,12 @@ import Service._
  import org.specs._
 
  object LauncherTest extends Specification {
-    "id" in  {
+    "num" in  {
      Some(List(Num("ABA")))  must beEqualTo(Launcher(134))
     }
 
-    "acct" in  {
-     Some(Acct("acct"))  must beEqualTo(Launcher(Num("ABA")))
+    "bal" in  {
+     Some(Bal(133F))  must beEqualTo(Launcher(Num("ABA")))
     }
  }
 
