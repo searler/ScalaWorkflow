@@ -20,7 +20,7 @@ package cognitiveentity.workflow.akka
 
 import cognitiveentity.workflow.{Bal,PP,Acct,Num}
 
-private class Service extends akka.actor.Actor{
+private class SelfContainedService extends akka.actor.Actor{
    import cognitiveentity.workflow.CI
    import cognitiveentity.workflow.Services._
    def receive = {
@@ -30,15 +30,15 @@ private class Service extends akka.actor.Actor{
    }
 }
  
-private object Service{
+private object SelfContainedService{
   val sa = akka.actor.Actor.actorOf[Service].start
 }
 
-private class Launcher extends AkkaFlowActor{  
+private class SelfContainedLauncher extends AkkaFlowActor{  
  
   override def create(a:Any) =  cs(a)
   
-  import Service._
+  import SelfContainedService._
   
   implicit val callNum = get[Int,List[Num]](sa)
   implicit val callAcct = get[Num,Acct](sa)
@@ -48,22 +48,22 @@ private class Launcher extends AkkaFlowActor{
   val cs = new cognitiveentity.workflow.FlowsSwitch
 }
 
-private object Launcher {
+private object SelfContainedLauncher {
    import cognitiveentity.workflow.Trigger
    def apply[A](initial:A) = {
-     val actRef = akka.actor.Actor.actorOf[Launcher]
+     val actRef = akka.actor.Actor.actorOf[SelfContainedLauncher]
      actRef !! Trigger(initial)
    }
 } 
 
 
-object SelfContainedAkkaTestTest extends org.specs.Specification {
+object SelfContainedAkkaTest extends org.specs.Specification {
     "num" in  {
-     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(Launcher(123))
+     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(SelfContainedLauncher(123))
     }
 
     "bal" in  {
-     Some(Bal(124.5F))  must beEqualTo(Launcher(Num("124-555-1234")))
+     Some(Bal(124.5F))  must beEqualTo(SelfContainedLauncher(Num("124-555-1234")))
     }
 }
 
