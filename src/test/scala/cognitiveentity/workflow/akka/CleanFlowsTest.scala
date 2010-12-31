@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow.akka
 
- import cognitiveentity.workflow.{CI,Lookup,Bal,PP,Acct,Num,RPF,CorrelationAllocator,FlowsTest}
+ import cognitiveentity.workflow.{CI,Lookup,Bal,PP,Acct,Num,RPF,CorrelationAllocator,FlowsTest,Trigger}
 
 
  import cognitiveentity.workflow.Services._
@@ -33,21 +33,26 @@ class Service extends akka.actor.Actor{
 object Service{
   val sa = akka.actor.Actor.actorOf[Service].start
 }
- 
-private class SwitchingAkkaFlowActor extends AkkaFlowActor{  
+
+private abstract class BaseAkkaFlowActor extends AkkaFlowActor{  
+   self.start
   def get[A,R](service:akka.actor.ActorRef) = {
      new Lookup[A,R]{
         def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
         ci
-    }
+       }
      }     
   }
+}
  
-  override def create(a:Any) = {
+private class SwitchingAkkaFlowActor extends BaseAkkaFlowActor{  
+ 
+ override def create(a:Any):(()=>RPF) = {
      cs(a)
    }
+  
 
 import Service._
   
@@ -73,8 +78,7 @@ import Service._
  object Launcher {
    def apply[A](initial:A) = {
      val actRef = akka.actor.Actor.actorOf[SwitchingAkkaFlowActor]
-     actRef.start
-     actRef !! Some(initial)
+     actRef !! Trigger(initial)
    }
  } 
 

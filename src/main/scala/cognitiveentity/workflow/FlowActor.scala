@@ -46,7 +46,7 @@ protected abstract class FlowActor{
                               case _ @ x => pfs = x :: Nil 
                             }
                      }
-         case Some(a) => receive(create(a))
+         case Trigger(a) => receive(create(a))
          case _ @ x=>throw new IllegalArgumentException(x toString)
    }
 
@@ -82,4 +82,6 @@ protected abstract class FlowActor{
    */
   def complete(r:Result[_])
 }
+
+case class Trigger[A](initial:A)
 
