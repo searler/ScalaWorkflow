@@ -26,7 +26,7 @@ package cognitiveentity.workflow
  * has unique state.
  */ 
 private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
- 
+  start
 
   /**
    *  Actor which created this instance and will receive the
@@ -57,6 +57,12 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
   def recordOriginator {
      originator = Some(sender)
   }
+
+  def create(a:Any):RPF ={
+    a match {
+      case generator:(()=>RPF) =>  generator()
+    }
+  }
 }
 
 /**
@@ -68,7 +74,6 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
 object ScalaFlowActor {
   def apply[A](flow:A=>RPF,initial:A) = {
       val a = new ScalaFlowActor
-      a.start
-      a ! {() =>flow(initial)}
+      a ! Trigger({() =>flow(initial)})
   }
 }

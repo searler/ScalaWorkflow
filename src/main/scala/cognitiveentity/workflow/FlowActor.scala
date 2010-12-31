@@ -31,26 +31,25 @@ protected abstract class FlowActor{
    */
   var pfs:List[RPF] = Nil
 
-  
+  private def processInitial(rpf:RPF) = {
+       recordOriginator
+       rpf match {
+                   case r:Result[_] => complete(r)
+                   case rc:RPFCollection => pfs = rc toList
+                   case _ @ x => pfs = x :: Nil 
+            }
+  }
 
   /**
    * Event driven processing of incoming messages.
    */
    def receive:PartialFunction[Any,Unit] = {
          case (ci:CI,r:Any) => process(ci,r)
-         case generator:(()=>RPF) => {
-                        recordOriginator
-                        generator() match {
-                              case r:Result[_] => complete(r)
-                              case rc:RPFCollection => pfs = rc toList
-                              case _ @ x => pfs = x :: Nil 
-                            }
-                     }
-         case Trigger(a) => receive(create(a))
+         case Trigger(a) => processInitial(create(a))
          case _ @ x=>throw new IllegalArgumentException(x toString)
    }
 
-   def create(a:Any):(()=>RPF) =  null
+   def create(a:Any):RPF 
 
    def recordOriginator
 

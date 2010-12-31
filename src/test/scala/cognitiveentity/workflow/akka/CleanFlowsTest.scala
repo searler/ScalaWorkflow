@@ -37,7 +37,7 @@ object Service{
 
 private class SwitchingAkkaFlowActor extends AkkaFlowActor{  
  
- override def create(a:Any):(()=>RPF) = {
+ override def create(a:Any) = {
      cs(a)
    }
   
@@ -57,8 +57,8 @@ import Service._
    import cognitiveentity.workflow.Flow._
    def apply(a:Any) = {
       a match {
-         case id:Int => { ()=>numLook(id)(End)}
-         case num:Num => { ()=> cognitiveentity.workflow.SingleLineBalance(num)}
+         case id:Int =>   numLook(id)(End)
+         case num:Num => cognitiveentity.workflow.SingleLineBalance(num)
       }
    }
  }

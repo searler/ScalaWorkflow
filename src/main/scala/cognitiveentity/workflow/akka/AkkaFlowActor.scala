@@ -27,8 +27,9 @@ import _root_.cognitiveentity.workflow.{RPF,CI,CorrelationAllocator,Result,Done,
  * An new instance is created for each flow invocation, since each
  * has unique state.
  */ 
-private class AkkaFlowActor extends FlowActor with akka.actor.Actor{
+private abstract class AkkaFlowActor extends FlowActor with akka.actor.Actor{
    self.start
+
   def get[A,R](service:akka.actor.ActorRef) = {
      new Lookup[A,R]{
         def call(arg:A):CI = {

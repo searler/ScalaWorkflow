@@ -18,11 +18,19 @@
  */
 package cognitiveentity.workflow.akka
 
- import cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest}
+ import cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest,Trigger}
 
  import cognitiveentity.workflow.Services._
 
 private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
+
+private class SelfAkkaFlowActor extends AkkaFlowActor {
+   def create(a:Any):RPF ={
+    a match {
+      case generator:(()=>RPF) =>  generator()
+    }
+  }
+}
 
  /**
  * Delegate the lookup to the specified Actor.
@@ -54,11 +62,11 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   * returns an R
   */ 
   protected def ch[A,R](flow:A=>RPF,initial:A,expected:R) {
-     val a = akka.actor.Actor.actorOf[AkkaFlowActor]
-    // a.start
+     val a = akka.actor.Actor.actorOf[SelfAkkaFlowActor]
+    
      current set a
              
-     val response = a !! {() => flow(initial)}
+     val response = a !!Trigger( {() => flow(initial)})
      response match {
         case Some(b:R) => b  must beEqualTo(expected)
         case _ @ x=> fail(x toString)
