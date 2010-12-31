@@ -48,7 +48,7 @@ private class Launcher extends AkkaFlowActor{
   val cs = new cognitiveentity.workflow.FlowsSwitch
 }
 
-object Launcher {
+private object Launcher {
    import cognitiveentity.workflow.Trigger
    def apply[A](initial:A) = {
      val actRef = akka.actor.Actor.actorOf[Launcher]
@@ -57,7 +57,7 @@ object Launcher {
 } 
 
 
-object LauncherTest extends org.specs.Specification {
+object SelfContainedAkkaTestTest extends org.specs.Specification {
     "num" in  {
      Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(Launcher(123))
     }
