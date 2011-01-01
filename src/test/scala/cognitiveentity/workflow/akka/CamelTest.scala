@@ -111,7 +111,7 @@ object CamelTest extends org.specs.Specification {
    "lots" in {
      import akka.actor.Actor._
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
-     val cnt  =15 //fails on greater
+     val cnt  =16 //fails on greater
      var success = new java.util.concurrent.atomic.AtomicInteger
      val latch  = new java.util.concurrent.CountDownLatch(cnt)
      for(i<-0 until cnt)
