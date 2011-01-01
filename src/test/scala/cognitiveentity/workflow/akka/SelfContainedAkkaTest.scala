@@ -31,7 +31,7 @@ private class SelfContainedService extends akka.actor.Actor{
 }
  
 private object SelfContainedService{
-  val sa = akka.actor.Actor.actorOf[Service].start
+  val sa = akka.actor.Actor.actorOf[SelfContainedService].start
 }
 
 private class SelfContainedLauncher extends AkkaFlowActor{  
