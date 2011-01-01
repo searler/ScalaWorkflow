@@ -77,8 +77,7 @@ private object Launcher {
 
 
 object CamelTest extends org.specs.Specification {
-    
-
+   
      doBeforeSpec {
      CamelContextManager.init
      val context = CamelContextManager.mandatoryContext
@@ -90,8 +89,6 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:request".bean(Launcher)})
 
      startCamelService
-
-   
     }
 
    def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
@@ -103,6 +100,30 @@ object CamelTest extends org.specs.Specification {
     "bal" in  {
      Some(Bal(124.5F))  must beEqualTo(send(Num("124-555-1234")))
     }
+
+   "manySingleThread" in {
+     val template = CamelContextManager.mandatoryContext.createProducerTemplate
+     for(i<-0 to 100)
+       Some(Bal(124.5F))  must beEqualTo(template.requestBody("seda:request",Num("124-555-1234")))
+   }
+
+
+   "lots" in {
+     import akka.actor.Actor._
+     val template = CamelContextManager.mandatoryContext.createProducerTemplate
+     val cnt  =15 //fails on greater
+     var success = new java.util.concurrent.atomic.AtomicInteger
+     val latch  = new java.util.concurrent.CountDownLatch(cnt)
+     for(i<-0 until cnt)
+       spawn{ 
+           val result= template.requestBody("seda:request",Num("124-555-1234"));
+           if(Some(Bal(124.5F)) == result)success.incrementAndGet
+           latch countDown 
+        }
+   latch.await
+   cnt must beEqualTo( success.get)
+ 
+   }
 
     doAfterSpec {
       stopCamelService
