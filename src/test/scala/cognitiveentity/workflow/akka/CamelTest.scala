@@ -77,6 +77,8 @@ private object Launcher {
 
 
 object CamelTest extends org.specs.Specification {
+    
+
      doBeforeSpec {
      CamelContextManager.init
      val context = CamelContextManager.mandatoryContext
@@ -85,16 +87,21 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:acct".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:bal".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:pp".bean(Responder)}) 
+     context.addRoutes(new RouteBuilder{"seda:request".bean(Launcher)})
 
      startCamelService
+
+   
     }
 
+   def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
+
     "num" in  {
-     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(Launcher(123))
+     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(send(123))
     }
 
     "bal" in  {
-     Some(Bal(124.5F))  must beEqualTo(Launcher(Num("124-555-1234")))
+     Some(Bal(124.5F))  must beEqualTo(send(Num("124-555-1234")))
     }
 
     doAfterSpec {
