@@ -65,6 +65,10 @@ object SelfContainedAkkaTest extends org.specs.Specification {
     "bal" in  {
      Some(Bal(124.5F))  must beEqualTo(SelfContainedLauncher(Num("124-555-1234")))
     }
+
+   doAfterSpec {
+      akka.actor.ActorRegistry.shutdownAll
+    }
 }
 
 
