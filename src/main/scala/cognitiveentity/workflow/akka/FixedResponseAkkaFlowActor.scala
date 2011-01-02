@@ -21,6 +21,11 @@ package cognitiveentity.workflow.akka
 
 private abstract class FixedResponseAkkaFlowActor(respondTo:akka.actor.ActorRef) extends AkkaFlowActor{
 
+ /**
+  * request originator is not interesting since
+  * flow result is sent to a fixed endpoint
+  * (respondTo)
+  */
   def recordOriginator {} //noop
 
  /**

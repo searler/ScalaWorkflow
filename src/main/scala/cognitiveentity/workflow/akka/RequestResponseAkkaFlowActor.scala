@@ -26,6 +26,10 @@ private abstract class RequestResponseAkkaFlowActor extends AkkaFlowActor{
    */
   var originator:akka.actor.Channel[Any] = _
 
+/**
+ * Record the identity of the request originator
+ *
+ */
   def recordOriginator {
      originator = self.channel
   }

@@ -473,11 +473,15 @@ object Conditional{
     }
 }
 
+case class SumBalances(id:Int)
+
+
 class FlowsSwitch(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) {
    def apply(a:Any) = {
       a match {
          case id:Int =>   numLook(id)(End)
          case num:Num => cognitiveentity.workflow.SingleLineBalance(num)
+         case SumBalances(id) => ListBalance(id)
       }
    }
  }

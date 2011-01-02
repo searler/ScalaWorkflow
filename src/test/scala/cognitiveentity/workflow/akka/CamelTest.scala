@@ -167,6 +167,10 @@ object CamelTest extends org.specs.Specification {
      Some(Bal(124.5F))  must beEqualTo(request(Num("124-555-1234")))
     }
 
+   "SumBalances" in  {
+     Some(Bal(125.5F))  must beEqualTo(request(cognitiveentity.workflow.SumBalances(123)))
+    }
+
    "manySingleThread" in {
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
      for(i<-0 to 100)
