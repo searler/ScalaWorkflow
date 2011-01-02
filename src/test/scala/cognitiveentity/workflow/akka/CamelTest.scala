@@ -81,7 +81,7 @@ private object RRLauncher {
 object RespondTo {
   import akka.actor.Actor
   import akka.actor.Actor._
-  import akka.camel.{Message, Producer}
+  import akka.camel.Producer
  
 
   class RespondTo extends Actor with Producer {
@@ -118,7 +118,7 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:bal".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:pp".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:request".bean(RRLauncher)})
-     context.addRoutes(new RouteBuilder{"seda:send".inOnly.bean(SendLauncher)})
+     context.addRoutes(new RouteBuilder{"seda:send".bean(SendLauncher)})
 
      startCamelService
     }
@@ -129,8 +129,9 @@ object CamelTest extends org.specs.Specification {
    
 
     "numSend" in  {
-     send(123)
-     Thread.sleep(3000L)
+     for(i<-0 to 2000)
+         akka.actor.Actor.spawn{send(123)}
+     Thread.sleep(30000L)
      RespondTo.dest.stop
     }
 
