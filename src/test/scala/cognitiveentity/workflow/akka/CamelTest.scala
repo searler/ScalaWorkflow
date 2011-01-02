@@ -105,8 +105,10 @@ private object Gather {
     val values = new ListBuffer[Any]
 
     def prep(expected:Int){
-        synchronized {values.clear}
-        awaiter.set(new CountDownLatch(expected))
+        synchronized {
+           values.clear
+           awaiter.set(new CountDownLatch(expected))
+         }
     }
     def await{awaiter.get.await}
     def apply[A](arg:A) {
