@@ -24,7 +24,7 @@ package cognitiveentity.workflow.akka
 
 private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 
-private class SelfAkkaFlowActor extends AkkaFlowActor {
+private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
    def create(a:Any):RPF ={
     a match {
       case generator:(()=>RPF) =>  generator()

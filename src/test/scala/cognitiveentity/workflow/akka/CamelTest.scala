@@ -47,7 +47,7 @@ private object Service{
   val ppService = akka.actor.Actor.actorOf(new Service("pp")).start
 }
 
-private class Launcher extends AkkaFlowActor{  
+private trait Wiring extends AkkaFlowActor {  
  
   override def create(a:Any) =  cs(a)
   
@@ -67,14 +67,45 @@ private class Launcher extends AkkaFlowActor{
   }
 }
 
-private object Launcher {
+
+private class RRLauncher extends RequestResponseAkkaFlowActor with Wiring
+
+private object RRLauncher {
    import cognitiveentity.workflow.Trigger
    def apply[A](initial:A) = {
-     val actRef = akka.actor.Actor.actorOf[Launcher]
+     val actRef = akka.actor.Actor.actorOf[RRLauncher]
      actRef !! Trigger(initial)
    }
 } 
 
+object RespondTo {
+  import akka.actor.Actor
+  import akka.actor.Actor._
+  import akka.camel.{Message, Producer}
+ 
+
+  class RespondTo extends Actor with Producer {
+      def endpointUri = "file:/tmp/dump"
+
+     //file: requires strings
+     override def receiveBeforeProduce = {
+        case _ @ x => x toString
+      }
+ 
+}
+
+   val dest = actorOf[RespondTo].start
+}
+
+private class SendLauncher(respondTo:akka.actor.ActorRef) extends FixedResponseAkkaFlowActor(respondTo) with Wiring
+
+private object SendLauncher {
+   import cognitiveentity.workflow.Trigger
+   def apply[A](initial:A)  {
+     val actRef = akka.actor.Actor.actorOf(new SendLauncher(RespondTo.dest))
+     actRef ! Trigger(initial)
+   }
+} 
 
 object CamelTest extends org.specs.Specification {
    
@@ -86,19 +117,31 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:acct".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:bal".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:pp".bean(Responder)}) 
-     context.addRoutes(new RouteBuilder{"seda:request".bean(Launcher)})
+     context.addRoutes(new RouteBuilder{"seda:request".bean(RRLauncher)})
+     context.addRoutes(new RouteBuilder{"seda:send".inOnly.bean(SendLauncher)})
 
      startCamelService
     }
 
-   def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
+   def request[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
+   def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.sendBody("seda:send",a)
 
+   
+
+    "numSend" in  {
+     send(123)
+     Thread.sleep(3000L)
+     RespondTo.dest.stop
+    }
+
+
+/*
     "num" in  {
-     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(send(123))
+     Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(request(123))
     }
 
     "bal" in  {
-     Some(Bal(124.5F))  must beEqualTo(send(Num("124-555-1234")))
+     Some(Bal(124.5F))  must beEqualTo(request(Num("124-555-1234")))
     }
 
    "manySingleThread" in {
@@ -111,7 +154,7 @@ object CamelTest extends org.specs.Specification {
    "lots" in {
      import akka.actor.Actor._
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
-     val cnt  =16 //fails on greater
+     val cnt  = 16 //fails on greater than pool size
      var success = new java.util.concurrent.atomic.AtomicInteger
      val latch  = new java.util.concurrent.CountDownLatch(cnt)
      for(i<-0 until cnt)
@@ -123,7 +166,7 @@ object CamelTest extends org.specs.Specification {
    latch.await
    cnt must beEqualTo( success.get)
  
-   }
+   }*/
 
     doAfterSpec {
       stopCamelService

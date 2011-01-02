@@ -34,7 +34,7 @@ private object SelfContainedService{
   val sa = akka.actor.Actor.actorOf[SelfContainedService].start
 }
 
-private class SelfContainedLauncher extends AkkaFlowActor{  
+private class SelfContainedLauncher extends RequestResponseAkkaFlowActor{  
  
   override def create(a:Any) =  cs(a)
   
