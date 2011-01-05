@@ -22,10 +22,11 @@ package cognitiveentity.workflow
  import scala.actors.Actor._
 
 /**
- * Delegate the lookup to the specified Actor.
+ * Delegate the lookup to the specified Scala Actor.
  * Represents a more realistic scenario
  */ 
 private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
+    //create a actor that responds with the appropriate value
     val service = new scala.actors.Actor{
        def act = {
           loop {
@@ -36,6 +37,7 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
        }
     }.start
  
+    //one way send to the service actor
     def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
@@ -48,6 +50,10 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
  private object balLookat extends LookupActor(balMap)
  private object ppLookat extends LookupActor(prepaidMap)
 
+ /**
+  * Perform FlowsTest with Scala actors against an emulation of full actor based
+  * external service
+  */
  object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with ScalaFlowActorImplementation {
 
 }

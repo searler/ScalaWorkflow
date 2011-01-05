@@ -21,8 +21,8 @@ package cognitiveentity.workflow
 import org.specs._
 
 /**
- * Perform the lookup and send the value to invoker.
- * Useful for unit testing
+ * Perform the lookup immediately and send the value to invoker.
+ * Useful for unit testing, minimising the actor infrastructure.
  */
   private class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
    def call(arg:A):CI = {
@@ -39,7 +39,12 @@ import org.specs._
  private object balLookup extends LookupSelf(balMap)
  private object ppLookup extends LookupSelf(prepaidMap)
 
+/**
+ * Execute FlowTests, using ScalaActors and self contained Lookup implementations
+ */
 object SelfFlowsTest extends FlowsTest()(numLookup,acctLookup,balLookup,ppLookup) with ScalaFlowActorImplementation {
+
+//Add two tests to the collection already specified in FlowsTest
 
 "oneLineBalanceSelf" in {
    check(SingleLineBalanceBuilder(new LookupSelf(acctMap), new LookupSelf(balMap)))

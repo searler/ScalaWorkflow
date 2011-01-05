@@ -20,6 +20,9 @@ package cognitiveentity.workflow
 
 import org.specs._
 
+/**
+ * Collections of tests of Flows, illustrating how they are used
+ */
 abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) extends Specification {
 
 
