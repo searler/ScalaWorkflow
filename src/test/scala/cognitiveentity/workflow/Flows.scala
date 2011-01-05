@@ -473,15 +473,22 @@ object Conditional{
     }
 }
 
+/**
+ * A "command wrapper" class that indirectly identifiers a flow to be executed and
+ * the argument for that flow. 
+ */
 case class SumBalances(id:Int)
 
-
+/**
+ * Wire a collection of flows into their environment and invoke the appropriate flows
+ * given a specific input
+ */
 class FlowsSwitch(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) {
    def apply(a:Any) = {
       a match {
-         case id:Int =>   numLook(id)(End)
-         case num:Num => cognitiveentity.workflow.SingleLineBalance(num)
-         case SumBalances(id) => ListBalance(id)
+         case id:Int          =>   numLook(id)(End) //implement flow inline, identified by input type
+         case num:Num         => SingleLineBalance(num) //flow identified by input type
+         case SumBalances(id) => ListBalance(id) //flow identified by Command Wrapper
       }
    }
  }

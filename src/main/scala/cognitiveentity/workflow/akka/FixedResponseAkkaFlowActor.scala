@@ -19,6 +19,11 @@
 package cognitiveentity.workflow.akka
 
 
+/**
+ * Result of flow is sent to respondTo actor, which would generally
+ * be connected to a specific queue dedicated to responses from the flows
+ * accessed via this actor
+ */
 private abstract class FixedResponseAkkaFlowActor(respondTo:akka.actor.ActorRef) extends AkkaFlowActor{
 
  /**

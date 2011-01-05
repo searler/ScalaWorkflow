@@ -30,6 +30,11 @@ import _root_.cognitiveentity.workflow.{RPF,CI,CorrelationAllocator,Result,Done,
 private abstract class AkkaFlowActor extends FlowActor with akka.actor.Actor{
    self.start
 
+  /**
+   * Return a Lookup instance that commands
+   * the service actor to respond to the AkKaFlowActor instance
+   * with the result of the lookup
+   */
   def get[A,R](service:akka.actor.ActorRef) = {
      new Lookup[A,R]{
         def call(arg:A):CI = {
@@ -40,10 +45,5 @@ private abstract class AkkaFlowActor extends FlowActor with akka.actor.Actor{
      }     
   }
 
-  
-
- 
-
-  
 }
 

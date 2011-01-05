@@ -23,9 +23,17 @@ import cognitiveentity.workflow.{Bal,PP,Acct,Num}
 import akka.camel.CamelContextManager
 import akka.camel.CamelServiceManager._
 
-object Responder{
+/**
+ * Simulates external services that provide
+ *  id             -> corresponding phone numbers
+ *  phone number   -> account number
+ *  account number -> balance
+ *
+ */
+private object Responder{
    import cognitiveentity.workflow.CI
    import cognitiveentity.workflow.Services._
+
    def apply(a:Any) = {
      a match {
        case (ci:CI,id:Int)    => (ci,numMap(id))
@@ -35,11 +43,13 @@ object Responder{
    }
 }
 
-private class Service(name:String) extends akka.actor.Actor with akka.camel.Producer{
-   def endpointUri = "seda:" + name
-}
+
  
 private object Service{
+  private class Service(name:String) extends akka.actor.Actor with akka.camel.Producer{
+     def endpointUri = "seda:" + name
+  }
+
   val numService = akka.actor.Actor.actorOf(new Service("num")).start
   val acctService = akka.actor.Actor.actorOf(new Service("acct")).start
   val balService = akka.actor.Actor.actorOf(new Service("bal")).start
@@ -75,7 +85,7 @@ private object RRLauncher {
    }
 } 
 
-object RespondTo {
+private object RespondTo {
   import akka.actor.Actor
   import akka.actor.Actor._
   import akka.camel.Producer
@@ -124,9 +134,10 @@ private object Gather {
 
 object CamelTest extends org.specs.Specification {
    
-     doBeforeSpec {
+   doBeforeSpec {
      CamelContextManager.init
      val context = CamelContextManager.mandatoryContext
+
      import org.apache.camel.scala.dsl.builder.RouteBuilder;
      context.addRoutes(new RouteBuilder{"seda:num".bean(Responder)}) 
      context.addRoutes(new RouteBuilder{"seda:acct".bean(Responder)}) 
@@ -137,7 +148,7 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:gather".bean(Gather)})
 
      startCamelService
-    }
+   }
 
    def request[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
    def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.sendBody("seda:send",a)
@@ -153,7 +164,7 @@ object CamelTest extends org.specs.Specification {
    "numSendLots" in  {
      val cnt = 200
      Gather.prep(cnt)
-     for(i<-0 to cnt)
+     for(i<-0 until cnt)
          akka.actor.Actor.spawn{send(123)}
      Gather.await
      cnt must beEqualTo(Gather.get.length) 

@@ -58,7 +58,7 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
      originator = Some(sender)
   }
 
-  def create(a:Any):RPF ={
+  def create(a:Any):RPF = {
     a match {
       case generator:(()=>RPF) =>  generator()
     }
