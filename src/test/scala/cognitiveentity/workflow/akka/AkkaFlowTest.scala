@@ -20,7 +20,7 @@ package cognitiveentity.workflow.akka
 
  import cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest,Trigger}
 
- import cognitiveentity.workflow.Services._
+ import cognitiveentity.workflow.ValueMaps._
 
 private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 

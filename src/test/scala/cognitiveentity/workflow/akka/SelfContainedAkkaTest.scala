@@ -22,7 +22,7 @@ import cognitiveentity.workflow.{Bal,PP,Acct,Num}
 
 private class SelfContainedService extends akka.actor.Actor{
    import cognitiveentity.workflow.CI
-   import cognitiveentity.workflow.Services._
+   import cognitiveentity.workflow.ValueMaps._
    def receive = {
      case (ci:CI,id:Int)    => self.reply((ci,numMap(id)))
      case (ci:CI,num:Num)   => self.reply((ci,acctMap(num)))

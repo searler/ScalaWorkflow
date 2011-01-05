@@ -20,7 +20,7 @@ package cognitiveentity.workflow
 
 
 
-object Services{
+object ValueMaps{
 
 /**
  * Standard values for test purposes

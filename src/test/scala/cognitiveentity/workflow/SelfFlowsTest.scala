@@ -32,7 +32,7 @@ import org.specs._
     }
 }
 
- import Services._
+ import ValueMaps._
 
  private object numLookup extends LookupSelf(numMap)
  private object acctLookup extends LookupSelf(acctMap)

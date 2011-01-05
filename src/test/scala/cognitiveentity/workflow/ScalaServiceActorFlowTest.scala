@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow
 
- import Services._
+ import ValueMaps._
  import scala.actors.Actor._
 
 /**

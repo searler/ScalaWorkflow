@@ -32,7 +32,7 @@ import akka.camel.CamelServiceManager._
  */
 private object Responder{
    import cognitiveentity.workflow.CI
-   import cognitiveentity.workflow.Services._
+   import cognitiveentity.workflow.ValueMaps._
 
    def apply(a:Any) = {
      a match {
