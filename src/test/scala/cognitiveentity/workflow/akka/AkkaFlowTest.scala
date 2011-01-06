@@ -22,6 +22,13 @@ package cognitiveentity.workflow.akka
 
  import cognitiveentity.workflow.ValueMaps._
 
+/**
+ * Unlike Scala, akka actors do not attach their identity to the current thread.
+ * It is thus necessary to explicitly wire together the components.
+ * This approach is only sensible for a serialized test environment.
+ * It does provide a simple and minimalist implementation that 
+ * exercises akka actors
+ */
 private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 
 private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
@@ -37,12 +44,15 @@ private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
  * Represents a more realistic scenario
  */ 
 private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
+    //actor that performs actual lookup
     class ServiceActor extends  akka.actor.Actor{
       def receive = {
         case (id:CI,a:A) => current.get ! (id->values(a))
       }
     }
     val service = akka.actor.Actor.actorOf(new ServiceActor).start
+
+    //request value from service actor
     def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
@@ -55,6 +65,10 @@ private object acctLookak extends LookupActor(acctMap)
 private object balLookak extends LookupActor(balMap)
 private object ppLookak extends LookupActor(prepaidMap)
 
+/**
+ * Perform FlowsTest, using akka actors and a minimalist service
+ * actor implementation.
+ */
 object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak) {
 
  /**
@@ -64,7 +78,7 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   protected def ch[A,R](flow:A=>RPF,initial:A,expected:R) {
      val a = akka.actor.Actor.actorOf[SelfAkkaFlowActor]
     
-     current set a
+     current set a //wires services actors to this instance
              
      val response = a !!Trigger( {() => flow(initial)})
      response match {

@@ -54,6 +54,10 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
      exit  //stop actor
   }
 
+ /**
+  * Record a reference to the actor that initiated the flow,
+  * so the result can be sent back to it on completion.
+  */
   def recordOriginator {
      originator = Some(sender)
   }

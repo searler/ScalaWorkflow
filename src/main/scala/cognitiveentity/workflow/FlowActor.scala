@@ -82,8 +82,14 @@ protected abstract class FlowActor{
   def complete(r:Result[_])
 }
 
+/**
+ * Causes flow to start, with the specified initial value
+ */
 case class Trigger[A](initial:A)
 
+/**
+ * Provide JVM unique correlation id
+ */
 object CorrelationAllocator{
    val id = new java.util.concurrent.atomic.AtomicInteger
    def apply() = CI(id.incrementAndGet)
