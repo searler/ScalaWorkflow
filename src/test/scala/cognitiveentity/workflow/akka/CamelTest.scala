@@ -120,7 +120,7 @@ private object Gather {
            awaiter.set(new CountDownLatch(expected))
          }
     }
-    def await{awaiter.get.await}
+    def await{awaiter.get.await(2,java.util.concurrent.TimeUnit.SECONDS)}
     def apply[A](arg:A) {
         synchronized {
           values+=arg
@@ -153,6 +153,30 @@ object CamelTest extends org.specs.Specification {
    def request[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.requestBody("seda:request",a)
    def send[A](a:A) = CamelContextManager.mandatoryContext.createProducerTemplate.sendBody("seda:send",a)
 
+
+    /**
+    * Multiple concurrent fire-and-forget invocations to return total balance
+    * for an id.
+    */
+  
+   "sumBalancesSendLots" in  {
+     val cnt = 200
+     Gather.prep(cnt)
+     for(i<-0 until cnt)
+         akka.actor.Actor.spawn{send(cognitiveentity.workflow.SumBalances(123))}
+     Gather.await
+     cnt must beEqualTo(Gather.get.length) 
+     Gather.get.foreach { Bal(125.5F) must beEqualTo(_)    }
+    }
+    
+  
+ 
+    
+
+
+    /**
+     * A single concurrent fire-and-forget invocation
+     */
    "numSendOne" in  {
      Gather.prep(1)
      for(i<-0 until 1)
@@ -161,6 +185,10 @@ object CamelTest extends org.specs.Specification {
      List(List(Num("124-555-1234"), Num("333-555-1234"))) must beEqualTo(Gather.get) 
     }
 
+   /**
+    * Multiple concurrent fire-and-forget invocations to return phone numbers
+    * for an id.
+    */
    "numSendLots" in  {
      val cnt = 200
      Gather.prep(cnt)
@@ -168,26 +196,41 @@ object CamelTest extends org.specs.Specification {
          akka.actor.Actor.spawn{send(123)}
      Gather.await
      cnt must beEqualTo(Gather.get.length) 
+     Gather.get.foreach { List(Num("124-555-1234"), Num("333-555-1234")) must beEqualTo(_)    }
     }
 
     "num" in  {
      Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(request(123))
     }
 
+    
     "bal" in  {
      Some(Bal(124.5F))  must beEqualTo(request(Num("124-555-1234")))
     }
 
+   /**
+    * Triggers  concurrent lookups from a single flow
+    */
    "SumBalances" in  {
      Some(Bal(125.5F))  must beEqualTo(request(cognitiveentity.workflow.SumBalances(123)))
     }
 
+    /**
+     * Perform many serialized request-response interactions.
+     */
    "manySingleThread" in {
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
      for(i<-0 to 100)
        Some(Bal(124.5F))  must beEqualTo(template.requestBody("seda:request",Num("124-555-1234")))
    }
 
+    /**
+     * Perform several concurrent request/response invocations of the flows.
+     * The number is limited by the size of thread pool that contains
+     * the anonymous actors that perform the MEP.
+     * This test simulates a reference from a blocking client,
+     * perhaps a request-response web service.
+     */
    "lots" in {
      import akka.actor.Actor._
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
@@ -204,6 +247,13 @@ object CamelTest extends org.specs.Specification {
      cnt must beEqualTo( success.get) 
    }
 
+
+
+   
+   
+    /**
+     * Shutdown
+     */ 
     doAfterSpec {
       stopCamelService
       akka.actor.ActorRegistry.shutdownAll

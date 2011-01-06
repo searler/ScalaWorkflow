@@ -32,7 +32,7 @@ private abstract class AkkaFlowActor extends FlowActor with akka.actor.Actor{
 
   /**
    * Return a Lookup instance that commands
-   * the service actor to respond to the AkKaFlowActor instance
+   * the service actor to respond to this AkKaFlowActor instance
    * with the result of the lookup
    */
   def get[A,R](service:akka.actor.ActorRef) = {

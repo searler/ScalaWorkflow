@@ -62,6 +62,7 @@ protected abstract class FlowActor{
    /**
     * Record the identity of the actor that initiated the flow,
     * so the final result of the flow can be sent to it.
+    */
    def recordOriginator
 
   /**
