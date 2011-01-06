@@ -32,7 +32,13 @@ package cognitiveentity.workflow.akka
 private  object current extends java.util.concurrent.atomic.AtomicReference[akka.actor.ActorRef]
 
 private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
-   def create(a:Any):RPF ={
+   /**
+    * The wiring of the lookup to this actor instance occurs externally
+    * and this implementation can thus afford to provide a minimally 
+    * coupled implementation, where client send a function that
+    * creates the RPF.
+    */
+   def create(a:Any):RPF = {
     a match {
       case generator:(()=>RPF) =>  generator()
     }

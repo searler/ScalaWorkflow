@@ -62,6 +62,11 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
      originator = Some(sender)
   }
 
+  /**
+   * Scala actor does not have any coupling to the flow or its environment.
+   * The most general form is thus to send a function that creates the RPF,
+   * providing maximum generality to the client.
+   */
   def create(a:Any):RPF = {
     a match {
       case generator:(()=>RPF) =>  generator()
