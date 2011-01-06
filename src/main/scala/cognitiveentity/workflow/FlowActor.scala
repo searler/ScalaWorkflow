@@ -49,8 +49,19 @@ protected abstract class FlowActor{
          case _ @ x=>throw new IllegalArgumentException(x toString)
    }
 
+   /**
+    * Create the starting RPF.
+    * The interpretation of a is defined between the client code and
+    * implementation.
+    * Creation is delegated to the implementation since akka actors require
+    * the flow to be wired into lookups that have referencing to the
+    * actor instance that is hosting the flow
+    */
    def create(a:Any):RPF 
 
+   /**
+    * Record the identity of the actor that initiated the flow,
+    * so the final result of the flow can be sent to it.
    def recordOriginator
 
   /**
