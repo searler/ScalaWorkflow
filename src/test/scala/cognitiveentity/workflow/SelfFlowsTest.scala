@@ -42,7 +42,7 @@ import org.specs._
 /**
  * Execute FlowTests, using ScalaActors and self contained Lookup implementations
  */
-object SelfFlowsTest extends FlowsTest()(numLookup,acctLookup,balLookup,ppLookup) with ScalaFlowActorImplementation {
+object SelfFlowsTest extends FlowsTest()(numLookup,acctLookup,balLookup,ppLookup) with CommonScalaFlowActorTest {
 
 //Add two tests to the collection already specified in FlowsTest
 

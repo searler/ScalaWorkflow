@@ -54,6 +54,6 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
   * Perform FlowsTest with Scala actors against an emulation of full actor based
   * external service
   */
- object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with ScalaFlowActorImplementation {
+ object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with CommonScalaFlowActorTest {
 
 }
