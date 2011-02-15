@@ -22,13 +22,18 @@ package cognitiveentity.workflow
  * The CI is the "correlation id" that links the response returned from
  * a service with the PartialFunction that will process it.
  *
- * apply() takes an RPF representing the portion of the flow
- * that will handle the response that matches the id and
- * wraps both the id and RPF into a Pending.
  */
 case class CI(id:Int){
-   def apply[R](fn:R =>RPF):RPF = new Pending(this,fn)
 }
+
+/**
+ * An RPF is a Recursive Partial Function
+ * that is defined for a single CI instance
+ * and provides function that computes the next
+ * RPF in the flow given the response associated
+ * with the CI.
+ */
+trait RPF extends PartialFunction[CI, Any=>RPF]
 
 /**
  * An RPF that represents a portion of a flow that will execute when
@@ -46,22 +51,13 @@ private class Pending[T](correlationId:CI,fn:T=>RPF) extends RPF{
 }
 
 /**
- * An RPF is a Recursive Partial Function
- * that is defined for a single CI instance
- * and provides function that computes the next
- * RPF in the flow given the response associated
- * with the CI.
- */
-trait RPF extends PartialFunction[CI, Any=>RPF]
-
-/**
  * RPFCollection is both an RPF and a simple collection of RPFs.
  *
  * It acts as an RPF when referenced from within the flow
  * implementation. In that case, it is defined if any
  * of the contained RPFs is defined for that argument.
  * Its apply is delegated to that RPF that is defined for the argument.
- * This logic is not expected to actually be implemented but
+ * This logic is not expected to actually be used but
  * RPFCollection must implement RPF to satisfy the type signatures.
  * A valid implementation avoids unpleasant surprises and provides
  * generality.
@@ -123,7 +119,7 @@ object Flow{
     * function instance to rejoin the complete flow.
     */
    def split(flows:RPF*):RPF = {
-     new RPFCollection(flows)
+      RPFCollection(flows)
    }
 
    /**
@@ -203,7 +199,7 @@ object Flow{
            Done
          }
      }
-     new RPFCollection(flows.map(pf=>pf(counter _)))
+     RPFCollection(flows.map(pf=>pf(counter _)))
    }
    
    /**
@@ -220,7 +216,7 @@ object Flow{
            next(arg)
          }
      }
-     new RPFCollection(flows.map(pf=>pf(counter _)))
+     RPFCollection(flows.map(pf=>pf(counter _)))
    }
 
    /**
@@ -236,7 +232,7 @@ object Flow{
          else 
             Done
      }
-     new RPFCollection( flows.map(pf=>pf(counter _)))
+     RPFCollection( flows.map(pf=>pf(counter _)))
    }
 
    /**
@@ -253,7 +249,7 @@ object Flow{
          else 
              Done
      }
-     new RPFCollection( flows.zipWithIndex.map(p=>p._1(counter(p._2) _)))
+     RPFCollection( flows.zipWithIndex.map(p=>p._1(counter(p._2) _)))
    }
   
 
@@ -274,7 +270,7 @@ object Flow{
            else 
               Done
         }
-        new RPFCollection( lst.map(v=>service(v)(counter _)))
+        RPFCollection( lst.map(v=>service(v)(counter _)))
      }
   }
 
@@ -293,7 +289,7 @@ object Flow{
         else 
            Done
      }
-     new RPFCollection( lst.map(v=>flow(counter _)(v)))
+     RPFCollection( lst.map(v=>flow(counter _)(v)))
      }
   }
 
@@ -317,7 +313,7 @@ object Flow{
          else 
             result(a.get->b.get)
      }
-     new RPFCollection(List(fa(processA),fb(processB)))
+     RPFCollection(List(fa(processA),fb(processB)))
   } 
 
   /**
@@ -348,7 +344,7 @@ def tupled3[A,B,C](fa:(A=>RPF)=>RPF,fb:(B=>RPF)=>RPF,fc:(C=>RPF)=>RPF)(result:((
          else 
             result((a.get,b.get,c.get))
      }
-     new RPFCollection(List(fa(processA),fb(processB),fc(processC)))
+     RPFCollection(List(fa(processA),fb(processB),fc(processC)))
   } 
     
 }
