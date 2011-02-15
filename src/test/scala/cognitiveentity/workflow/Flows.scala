@@ -323,6 +323,19 @@ object SingleLineBalanceTupled{
 }
 
 /**
+ * Return three results as a tuple
+ */
+object SingleLineBalanceTripled{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      Flow.tupled3[Acct,Bal,String](
+        c => acctLook(pn){c} ,
+        c => acctLook(pn){balLook(_){c}},
+        c => acctLook(pn){balLook(_){b:Bal=>c(b toString)}}
+      ) (End)
+  }
+}
+
+/**
  * Capture two results as a tuple and return tuple as a string
  */
 object SingleLineBalanceTupledString{

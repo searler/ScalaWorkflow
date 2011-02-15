@@ -136,6 +136,10 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
    chk(SingleLineBalanceTupledString(_),"""(Acct(alpha),Bal(124.5))""")
   } 
 
+ "SingleLineBalanceTripled" in {
+   chk(SingleLineBalanceTripled(_),(Acct("alpha"), Bal(124.5F),"Bal(124.5)"))
+  } 
+
   "SingleLineBalanceFirst" in {
   check( SingleLineBalanceFirst(_))
   } 
@@ -180,5 +184,46 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
 "Conditional other" in {
     ch(Conditional(_:String),"xx","unmatched")
   }
+
+"Empty RPFCollection" in {
+  import Flow._
+  val col = split()
+  false must beEqualTo(col.isDefinedAt(CI(12)))
+}
+
+"Singleton RPFCollection" in {
+  import Flow._
+  val r1:RPF =  new RPF{
+     def isDefinedAt(ci:CI) = ci.id==12
+     def apply(ci:CI)= {case _ => Done}
+  }
+  val col = split(r1)
+  true must beEqualTo(col.isDefinedAt(CI(12)))
+  false must beEqualTo(col.isDefinedAt(CI(13)))
+}
+
+"Pair RPFCollection" in {
+  import Flow._
+  val r1:RPF =  new RPF{
+     def isDefinedAt(ci:CI) = ci.id==12
+     def apply(ci:CI)= {case c:CI => Result(ci.id *2)}
+  }
+ val r2:RPF =  new RPF{
+     def isDefinedAt(ci:CI) = ci.id==13
+     def apply(ci:CI)= {case c:CI => Result(ci.id * 3)}
+  }
+  val col = split(r1,r2)
+  true must beEqualTo(col.isDefinedAt(CI(12)))
+  true must beEqualTo(col.isDefinedAt(CI(13)))
+  false must beEqualTo(col.isDefinedAt(CI(14)))
+  col(CI(12))(CI(12))  match {
+    case r:Result[_] => 24 must beEqualTo(r.value)
+  }
+ col(CI(13))(CI(13))  match {
+    case r:Result[_] => 39 must beEqualTo(r.value)
+  }
+  
+ 
+}
 
 }
