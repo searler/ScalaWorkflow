@@ -94,12 +94,13 @@ private trait Terminal extends RPF{
 /**
  * Represents the completion of a subflow (generally an intermediate instance of
  * parallel subflows)
- * It only exists because all RPFs have to return another RPF. 
+ * It only exists because all RPFs have to return another RPF, and thus
+ * does not have an associated value.
  */
 private object Done extends Terminal
 
 /**
- * The final result of the entire flow
+ * The final value of the entire flow
  */
 private case class Result[A](value:A) extends Terminal
 
@@ -108,7 +109,10 @@ private case class Result[A](value:A) extends Terminal
  */
 object Flow{
 
-   def End[A](arg:A):RPF =  new Result(arg)
+   /**
+    * Defines the final value (and thus end) of the flow.
+    */
+   def End[A](value:A):RPF =  new Result(value)
    def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
 
    /**
@@ -128,8 +132,12 @@ object Flow{
     * The values (if any) of the flows triggered by
     * responses is ignored
     *
-    * Can be Used to terminate a split.
-    * only useful where the subflows have side effects (e.g. recording their results
+    * Note how next takes no arguments and must thus
+    * use bound references to the flow state (i.e.
+    * using a closure) 
+    *
+    * Can be used to terminate a split.
+    * Only useful where the subflows have side effects (e.g. recording their results
     * in variables), which is not recommended.
     * function is provided to match standard XPDL semantics
     */
@@ -183,7 +191,7 @@ object Flow{
    }
 
    /**
-    * Evaluate the flows, applying process each result.
+    * Evaluate the flows, applying process to each result.
     * The value of the last call to process is evaluated by the next flow.
     *
     * It is expected that process assembles some state from each result
