@@ -92,7 +92,7 @@ object SelfContainedAkkaTest extends org.specs.Specification {
     }
 
    doAfterSpec {
-      akka.actor.ActorRegistry.shutdownAll
+      akka.actor.Actor.registry.shutdownAll
     }
 }
 

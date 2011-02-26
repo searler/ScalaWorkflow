@@ -256,6 +256,6 @@ object CamelTest extends org.specs.Specification {
      */ 
     doAfterSpec {
       stopCamelService
-      akka.actor.ActorRegistry.shutdownAll
+      akka.actor.Actor.registry.shutdownAll
     }
 }
