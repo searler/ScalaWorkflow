@@ -26,12 +26,18 @@ import org.specs._
 abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) extends Specification {
 
 
+ /**
+  * Common test code for a flow that accepts an A and
+  * uses Matcher
+  */ 
+  protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) 
+
 
  /**
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-  protected def ch[A,R](flow:A=>RPF,n:A,expected:R) 
+  protected def ch[A,R](flow:A=>RPF,n:A,expected:R) = chMatch(flow,n,new matcher.BeEqualTo(expected))
 
  /**
   * Test a flow that takes Num("124-555-1234") and returns an R
@@ -153,7 +159,7 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
   }
 
   "ParallelIdentity" in {
-    ch(ParallelIdentity(_:Int),123,List(Acct("alpha"), Acct("beta")))
+    chMatch(ParallelIdentity(_:Int),123,beEqualTo(List(Acct("alpha"), Acct("beta"))) or beEqualTo(List(Acct("beta"), Acct("alpha"))))
   }
 
  "ParallelBalance" in {
@@ -166,11 +172,11 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
   }
 
   "SplitGather" in {
-    ch(SplitGather(_:String),"xxx",List(Acct("alpha"), Acct("beta")))
+    chMatch(SplitGather(_:String),"xxx",beEqualTo(List(Acct("alpha"), Acct("beta"))) or beEqualTo(List(Acct("beta"), Acct("alpha"))))
   }
 
 "SplitAny" in {
-    ch(SplitAny(_:String),"xxx",Acct("alpha"))
+    chMatch(SplitAny(_:String),"xxx",beEqualTo(Acct("alpha")) or beEqualTo(Acct("beta")) )
   }
 
  "Conditional one" in {

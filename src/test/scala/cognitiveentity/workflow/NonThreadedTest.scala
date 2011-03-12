@@ -29,11 +29,11 @@ object NonThreadedTest  extends FlowsTest()(InlineProcessor.numDLookup,InlinePro
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-protected def ch[A,R](flow:A=>RPF,n:A,expected:R) {
+protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) {
    
     
       InlineProcessor(flow,n) match {
-        case r:R =>r must beEqualTo(expected)
+        case r:R => r must m
        case _ @ x=> fail(x toString)
       }
    

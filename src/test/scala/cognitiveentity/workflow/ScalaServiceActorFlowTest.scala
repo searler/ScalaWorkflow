@@ -38,7 +38,7 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     }.start
  
     //one way send to the service actor
-    def call(arg:A):CI = {
+    protected def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
         ci

@@ -65,7 +65,9 @@ private class ScalaFlowActor extends FlowActor with scala.actors.Actor   {
   /**
    * Scala actor does not have any coupling to the flow or its environment.
    * The most general form is thus to send a function that creates the RPF,
-   * providing maximum generality to the client.
+   * providing maximum generality to the client. 
+   * Also ensures flow initialization occurs on actor thread, increasing 
+   * concurrency.
    */
   def create(a:Any):RPF = {
     a match {

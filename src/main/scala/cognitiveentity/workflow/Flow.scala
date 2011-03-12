@@ -76,8 +76,16 @@ private case class RPFCollection(list:Traversable[RPF]) extends RPF{
  * an external service.
  */
 trait Lookup[A,R] {
+  /**
+   * Make call, recording the function to be executed when future response is received.
+   * The curried form is used to provide a clearer client API.
+   */
   def apply(arg:A)(fn:R =>RPF):RPF = new Pending(call(arg),fn)
-  def call(arg:A):CI
+  /**
+   * initiate the async action, returning the CI for future correlation
+   * This is the actual implementation.
+   */
+  protected def call(arg:A):CI
 }
 
 /**
@@ -101,6 +109,7 @@ private object Done extends Terminal
 
 /**
  * The final value of the entire flow
+ * Pattern matched to extract the value.
  */
 private case class Result[A](value:A) extends Terminal
 

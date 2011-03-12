@@ -33,10 +33,10 @@ import scala.actors.Actor._
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-protected def ch[A,R](flow:A=>RPF,n:A,expected:R) {
+protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) {
     ScalaFlowActor(flow,n)
     receiveWithin(1000L){
-       case b:R => b  must beEqualTo(expected)
+       case b:R => b  must m
        case scala.actors.TIMEOUT => fail("timeout")
        case _ @ x=> fail(x toString)
       }

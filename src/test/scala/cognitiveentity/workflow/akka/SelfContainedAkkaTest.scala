@@ -15,6 +15,8 @@
 
 /**
  * Simplest sensible implementation of an akka based flow.
+ * All services are directly referenced.
+ *
  * 
  * @author Richard Searle
  */
@@ -24,7 +26,7 @@ import cognitiveentity.workflow.{Bal,PP,Acct,Num}
 
 /**
  * Actor that implements all the lookups, immediately
- * reply with values drawn from the corresponding maps
+ * replying with values drawn from the corresponding maps
  */
 private class SelfContainedService extends akka.actor.Actor{
    import cognitiveentity.workflow.CI
@@ -57,12 +59,12 @@ private class SelfContainedLauncher extends RequestResponseAkkaFlowActor{
   
   import SelfContainedService._
   
-  implicit val callNum = get[Int,List[Num]](sa)
-  implicit val callAcct = get[Num,Acct](sa)
-  implicit val callBal = get[Acct,Bal](sa)
-  implicit val callPP = get[Acct,PP](sa)
+  private implicit val callNum = get[Int,List[Num]](sa)
+  private implicit val callAcct = get[Num,Acct](sa)
+  private implicit val callBal = get[Acct,Bal](sa)
+  private implicit val callPP = get[Acct,PP](sa)
 
-  val cs = new cognitiveentity.workflow.FlowsSwitch
+  private val cs = new cognitiveentity.workflow.FlowsSwitch
 }
 
 /**

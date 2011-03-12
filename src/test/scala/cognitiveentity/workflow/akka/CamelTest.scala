@@ -14,6 +14,13 @@
  */
 
 /**
+ * Simulate a real world deployment where services are remoted and accessed via
+ * Camel (e.g. over JMS)
+ *
+ * Both Request/Response and fire-and-forget(oneway) interactions are tested.
+ * In the latter case, the result is delivered to a fixed end point (e.g. a JMS
+ * queue)
+ *
  * @author Richard Searle
  */
 package cognitiveentity.workflow.akka

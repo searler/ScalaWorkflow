@@ -57,7 +57,7 @@ object SingleLineBalance{
 /**
  * Lookup Balance from Phone number
  * Trivial usage of inject (serves no purpose other
- * than demostrating its usage)
+ * than demonstrating its usage)
  */
 object SingleLineBalanceAsTwo{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {

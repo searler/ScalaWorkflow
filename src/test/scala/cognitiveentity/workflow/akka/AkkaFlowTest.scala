@@ -14,6 +14,13 @@
  */
 
 /**
+ * Execute all the tests defined in FlowsTest, using an environment
+ * implemented using Akka actors. 
+ *
+ * The test uses an unrealistic mechanism for wiring the dependencies and
+ * merely serves a demonstration. Scala actors are more suited to unit
+ * testing of flows
+ *
  * @author Richard Searle
  */
 package cognitiveentity.workflow.akka
@@ -35,7 +42,7 @@ private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
    /**
     * The wiring of the lookup to this actor instance occurs externally
     * and this implementation can thus afford to provide a minimally 
-    * coupled implementation, where client send a function that
+    * coupled implementation, where client sends a function that
     * creates the RPF.
     */
    def create(a:Any):RPF = {
@@ -51,15 +58,15 @@ private class SelfAkkaFlowActor extends RequestResponseAkkaFlowActor {
  */ 
 private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
     //actor that performs actual lookup
-    class ServiceActor extends  akka.actor.Actor{
+    private class ServiceActor extends  akka.actor.Actor{
       def receive = {
         case (id:CI,a:A) => current.get ! (id->values(a))
       }
     }
-    val service = akka.actor.Actor.actorOf(new ServiceActor).start
+    private val service = akka.actor.Actor.actorOf(new ServiceActor).start
 
     //request value from service actor
-    def call(arg:A):CI = {
+    protected def call(arg:A):CI = {
         val ci = CorrelationAllocator()
         service ! (ci,arg)
         ci
@@ -81,14 +88,14 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-  protected def ch[A,R](flow:A=>RPF,initial:A,expected:R) {
+  protected def chMatch[A,R](flow:A=>RPF,initial:A,m:org.specs.matcher.Matcher[R]) {
      val a = akka.actor.Actor.actorOf[SelfAkkaFlowActor]
     
      current set a //wires services actors to this instance
              
      val response = a !!Trigger( {() => flow(initial)})
      response match {
-        case Some(b:R) => b  must beEqualTo(expected)
+        case Some(b:R) => b must m
         case _ @ x=> fail(x toString)
      }
 

@@ -65,13 +65,13 @@ object InlineProcessor {
   
 import ValueMaps._
 
-    val toBe = scala.collection.mutable.HashMap[CI,Any]()
+    var toBe:List[(CI,Any)] = Nil
  
 
   class DirectLookup[A,R](values:Map[A,R]) extends Lookup[A,R]{
        protected def call(arg:A):CI = {
            val ci = CorrelationAllocator()
-           toBe += ci->values(arg)
+           toBe = ci->values(arg) :: toBe
            ci
          }
      }
@@ -91,9 +91,9 @@ import ValueMaps._
       a receive Trigger({() =>flow(initial)})
 
      while(!toBe.isEmpty){
-         val (ci,value) = toBe.head
-         toBe.remove(ci)
-         a receive (ci,value)
+         val copy = toBe
+         toBe = Nil
+         copy foreach {a receive _}
       }
     a.finalResult
   }

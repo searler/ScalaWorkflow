@@ -27,10 +27,13 @@ package cognitiveentity.workflow
  */ 
 protected abstract class FlowActor{
   /**
-   * Represents service calls for which a response still required
+   * Represents service calls for which a response is still required
    */
   var pfs:List[RPF] = Nil
 
+  /**
+   * Result applies when flow is already complete on initialization (see Conditional other)
+   */
   private def processInitial(rpf:RPF) = {
        recordOriginator
        rpf match {
@@ -54,7 +57,7 @@ protected abstract class FlowActor{
     * The interpretation of a is defined between the client code and
     * implementation.
     * Creation is delegated to the implementation since akka actors require
-    * the flow to be wired into lookups that have referencing to the
+    * the flow to be wired into lookups that have references to the
     * actor instance that is hosting the flow
     */
    def create(a:Any):RPF 

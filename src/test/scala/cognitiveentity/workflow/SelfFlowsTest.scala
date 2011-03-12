@@ -25,7 +25,7 @@ import org.specs._
  * Useful for unit testing, minimising the actor infrastructure.
  */
   private class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
-   def call(arg:A):CI = {
+   protected def call(arg:A):CI = {
        val ci = CorrelationAllocator()
        scala.actors.Actor.self ! (ci,values(arg))
        ci
