@@ -20,30 +20,9 @@ package cognitiveentity.workflow
 
 import org.specs._
 
-import ValueMaps._
-
- object Holder{
-    val toBe = scala.collection.mutable.HashMap[CI,Any]()
- }
-
- private class DirectLookup[A,R](values:Map[A,R]) extends Lookup[A,R]{
-       protected def call(arg:A):CI = {
-           val ci = CorrelationAllocator()
-           Holder.toBe += ci->values(arg)
-           ci
-         }
-     }
 
 
-
-
-   
-private object numDLookup extends DirectLookup(numMap)
-private object acctDLookup extends DirectLookup(acctMap)
-private object balDLookup extends DirectLookup(balMap)
-private object ppDLookup extends DirectLookup(prepaidMap)
-
-object NonThreadedTest  extends FlowsTest()(numDLookup,acctDLookup,balDLookup,ppDLookup) {
+object NonThreadedTest  extends FlowsTest()(InlineProcessor.numDLookup,InlineProcessor.acctDLookup,InlineProcessor.balDLookup,InlineProcessor.ppDLookup)  {
 
 
   /**
@@ -52,15 +31,9 @@ object NonThreadedTest  extends FlowsTest()(numDLookup,acctDLookup,balDLookup,pp
   */ 
 protected def ch[A,R](flow:A=>RPF,n:A,expected:R) {
    
-      var rpf = flow(n)
-       while(!Holder.toBe.isEmpty){
-         val (ci,value) = Holder.toBe.head
-         Holder.toBe.remove(ci)
-         rpf = rpf(ci)(value) 
-      }
-      
-      rpf match {
-        case r:Result[_] =>r.value must beEqualTo(expected)
+    
+      InlineProcessor(flow,n) match {
+        case r:R =>r must beEqualTo(expected)
        case _ @ x=> fail(x toString)
       }
    
