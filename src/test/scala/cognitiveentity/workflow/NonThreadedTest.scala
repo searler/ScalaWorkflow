@@ -20,17 +20,16 @@ package cognitiveentity.workflow
 
 import org.specs._
 
+import ValueMaps._
 
-object NonThreadedTest extends Specification{
+ object Holder{
+    val toBe = scala.collection.mutable.HashMap[CI,Any]()
+ }
 
- import ValueMaps._
-
- val toBe = scala.collection.mutable.HashMap[CI,Any]()
-
- class LookupSelf[A,R](values:Map[A,R]) extends Lookup[A,R]{
+ private class DirectLookup[A,R](values:Map[A,R]) extends Lookup[A,R]{
        protected def call(arg:A):CI = {
            val ci = CorrelationAllocator()
-           toBe += ci->values(arg)
+           Holder.toBe += ci->values(arg)
            ci
          }
      }
@@ -39,21 +38,37 @@ object NonThreadedTest extends Specification{
 
 
    
-implicit object numLookup extends LookupSelf(numMap)
-implicit object acctLookup extends LookupSelf(acctMap)
-implicit object balLookup extends LookupSelf(balMap)
+private object numDLookup extends DirectLookup(numMap)
+private object acctDLookup extends DirectLookup(acctMap)
+private object balDLookup extends DirectLookup(balMap)
+private object ppDLookup extends DirectLookup(prepaidMap)
 
-/*
-   "simple non threaded" in {
-      val f1:RPF = SingleLineBalanceAsTwo(Num("124-555-1234"))
-      val f2 = f1(CI(1))(Acct("alpha"))
-      val f3  = f2(CI(2))(Bal(124.5F))
-      f3 match {
-        case r:Result[_] =>r.value must beEqualTo(Bal(124.5F))
-        case _ => fail("unexpected")
+object NonThreadedTest  extends FlowsTest()(numDLookup,acctDLookup,balDLookup,ppDLookup) {
+
+
+  /**
+  * Common test code for a flow that accepts an A and
+  * returns an R
+  */ 
+protected def ch[A,R](flow:A=>RPF,n:A,expected:R) {
+   
+      var rpf = flow(n)
+       while(!Holder.toBe.isEmpty){
+         val (ci,value) = Holder.toBe.head
+         Holder.toBe.remove(ci)
+         rpf = rpf(ci)(value) 
       }
-   }
-*/
+      
+      rpf match {
+        case r:Result[_] =>r.value must beEqualTo(expected)
+       case _ @ x=> fail(x toString)
+      }
+   
+  
+ }
+ 
+/*
+
    
    "improved non threaded" in {
       var rpf = SingleLineBalanceAsTwo(Num("124-555-1234"))
@@ -68,5 +83,5 @@ implicit object balLookup extends LookupSelf(balMap)
         case _ => fail("unexpected")
       }
 
-   }
+   } */
 }
