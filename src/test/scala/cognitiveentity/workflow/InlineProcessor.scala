@@ -21,6 +21,9 @@ package cognitiveentity.workflow
 
 private class InlineProcessor extends FlowActor   {
   
+   /**
+    * Capture final flow result for checking in the test
+    */
    var finalResult:Any = _
 
   /**
@@ -31,25 +34,16 @@ private class InlineProcessor extends FlowActor   {
     finalResult = r.value
   }
 
- /**
-  * Record a reference to the actor that initiated the flow,
-  * so the result can be sent back to it on completion.
-  */
   def recordOriginator {
     //noop
   }
 
   /**
-   * Scala actor does not have any coupling to the flow or its environment.
-   * The most general form is thus to send a function that creates the RPF,
-   * providing maximum generality to the client. 
-   * Also ensures flow initialization occurs on actor thread, increasing 
-   * concurrency.
+   * Initial execution of flow occurred immediately
+   * upon construction, so this is a no-op
    */
   def create(a:Any):RPF = {
-    a match {
-      case generator:(()=>RPF) =>  generator()
-    }
+     a.asInstanceOf[RPF]
   }
 } 
 
@@ -60,41 +54,46 @@ private class InlineProcessor extends FlowActor   {
  * occurs on a different thread.
  */
 object InlineProcessor {
-
   
   
-import ValueMaps._
 
-    var toBe:List[(CI,Any)] = Nil
+  /**
+   * Unprocessed results from the external lookups
+   */
+  var toBe:List[(CI,Any)] = Nil
  
-
-  class DirectLookup[A,R](values:Map[A,R]) extends Lookup[A,R]{
+   /**
+    * Simulate external lookup, recording the result for processing
+    */
+   class DirectLookup[A,R](values:Map[A,R]) extends Lookup[A,R]{
        protected def call(arg:A):CI = {
            val ci = CorrelationAllocator()
            toBe = ci->values(arg) :: toBe
            ci
-         }
-     }
+       }
+   }
 
-
-
-
+   import ValueMaps._
    
- object numDLookup extends DirectLookup(numMap)
- object acctDLookup extends DirectLookup(acctMap)
- object balDLookup extends DirectLookup(balMap)
- object ppDLookup extends DirectLookup(prepaidMap)
+   object numDLookup extends DirectLookup(numMap)
+   object acctDLookup extends DirectLookup(acctMap)
+   object balDLookup extends DirectLookup(balMap)
+   object ppDLookup extends DirectLookup(prepaidMap)
 
+   /**
+    * Execute flow, processing each tuple returned from Lookup
+    * until final result is populated
+    * Check the final result against the expected value
+    */
+   def apply[A](flow:A=>RPF,initial:A) = {
+      val processor = new InlineProcessor
+      processor receive Trigger(flow(initial))
 
-  def apply[A](flow:A=>RPF,initial:A) = {
-      val a = new InlineProcessor
-      a receive Trigger({() =>flow(initial)})
-
-     while(!toBe.isEmpty){
+      while(processor.finalResult == null){
          val copy = toBe
          toBe = Nil
-         copy foreach {a receive _}
+         copy foreach {processor receive _}
       }
-    a.finalResult
+    processor.finalResult
   }
 }

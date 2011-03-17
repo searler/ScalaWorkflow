@@ -20,41 +20,19 @@ package cognitiveentity.workflow
 
 import org.specs._
 
-
-
-object NonThreadedTest  extends FlowsTest()(InlineProcessor.numDLookup,InlineProcessor.acctDLookup,InlineProcessor.balDLookup,InlineProcessor.ppDLookup)  {
-
-
+/**
+ * Execute tests defined in FlowsTest a single threaded manner, w/o any actors 
+ *
+ * Wires the lookups into FlowsTest 
+ */
+object NonThreadedTest extends FlowsTest()(InlineProcessor.numDLookup,InlineProcessor.acctDLookup,InlineProcessor.balDLookup,InlineProcessor.ppDLookup)  {
   /**
-  * Common test code for a flow that accepts an A and
-  * returns an R
+  * Execute flow and check result against matcher
   */ 
-protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) {
-   
-    
-      InlineProcessor(flow,n) match {
-        case r:R => r must m
-       case _ @ x=> fail(x toString)
-      }
-   
-  
- }
- 
-/*
-
-   
-   "improved non threaded" in {
-      var rpf = SingleLineBalanceAsTwo(Num("124-555-1234"))
-      while(!toBe.isEmpty){
-         val (ci,value) = toBe.head
-         toBe.remove(ci)
-         rpf = rpf(ci)(value) 
-      }
-      
-      rpf match {
-        case r:Result[_] =>r.value must beEqualTo(Bal(124.5F))
-        case _ => fail("unexpected")
-      }
-
-   } */
+   protected def chMatch[A,R](flow:A=>RPF,initial:A,expected:matcher.Matcher[R]) {
+      InlineProcessor(flow,initial) match {
+         case r:R => r must expected
+         case _ @ x=> fail(x toString)
+      } 
+   }
 }
