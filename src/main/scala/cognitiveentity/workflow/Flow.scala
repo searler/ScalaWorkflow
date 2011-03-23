@@ -270,32 +270,15 @@ object Flow{
    }
   
 
-  /**
-   * Parallel calls to the service with each value of a list, gathering the responses into a list
-   * for evaluation by the next flow.
-   *
-   * scatter returns a function that takes a list as an argument (rather than
-   * simply defining the list as the third argument) to provide a cleaner
-   * client API
-   */
-  def scatter[A,C](service:Lookup[A,C])(next:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
-        val buffer = new scala.collection.mutable.ListBuffer[C]() 
-        def counter(arg:C):RPF = {
-           buffer += arg 
-           if(buffer.size == lst.size)
-              next(buffer toList) 
-           else 
-              Done
-        }
-        RPFCollection( lst.map(v=>service(v)(counter _)))
-     }
-  }
+  
 
  /**
    * Parallel evaluations of the flow with each value of a list, gathering the results into a list
    * for evaluation by the next flow.
-   *
-   * Generalized form of scatter
+   * 
+   * returns a function that takes a list as an argument (rather than
+   * simply defining the list as the third argument) to provide a cleaner
+   * client API
    */
   def parallel[A,C](flow:(C=>RPF)=>(A=>RPF))(next:Traversable[C]=>RPF):Traversable[A]=>RPF = {lst:Traversable[A] => {
      val buffer = new scala.collection.mutable.ListBuffer[C]() 
@@ -309,6 +292,15 @@ object Flow{
      RPFCollection( lst.map(v=>flow(counter _)(v)))
      }
   }
+
+/**
+   * Parallel calls to the service with each value of a list, gathering the responses into a list
+   * for evaluation by the next flow.
+   *
+   * specialized form of parallel
+   */
+  def scatter[A,C](service:Lookup[A,C])(next:Traversable[C]=>RPF):Traversable[A]=>RPF = parallel[A,C]({c=>{a:A=>service(a){c}}})(next)
+
 
   /**
    * Evaluate two flows in parallel and record their responses in a tuple
