@@ -153,6 +153,7 @@ private object Gather {
     }
     //wait for expected number of results to be received
     def await{awaiter.get.await(2,java.util.concurrent.TimeUnit.SECONDS)}
+
     //record the result
     def apply[A](arg:A) {
         synchronized {
@@ -160,9 +161,8 @@ private object Gather {
           awaiter.get.countDown
        }
      }
-   def get = {
-     synchronized {values toList}
-   }
+
+   def get = synchronized {values toList}   
 }
 
 object CamelTest extends org.specs.Specification {

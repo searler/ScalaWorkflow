@@ -77,6 +77,16 @@ object SingleLineBalanceAsTwoStripped{
 }
 
 /**
+ * SingleLineBalanceAsTwo, with initial value
+ */
+object SingleLineBalanceAsTwoInitial{
+    def apply(pn:Num,initial:Bal)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+      val add = {b:Bal => Result(b+initial)}
+      inject({a:Acct => a})(c => acctLook(pn)(c)){balLook(_:Acct)(add)}
+    }
+}
+
+/**
  *  Perform phone number -> balance lookup twice in parallel,
  *  and the sum the results.
  *  Note how the inject has no final result, with the total
@@ -502,12 +512,12 @@ case class SumBalances(id:Int)
 
 /**
  * Wire a collection of flows into their environment and invoke the appropriate flows
- * given a specific input
+ * based on the type of the input
  */
 class FlowsSwitch(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) {
    def apply(a:Any) = {
       a match {
-         case id:Int          =>   numLook(id)(End) //implement flow inline, identified by input type
+         case id:Int          => numLook(id)(End) //implement flow inline, identified by input type
          case num:Num         => SingleLineBalance(num) //flow identified by input type
          case SumBalances(id) => ListBalance(id) //flow identified by Command Wrapper
       }

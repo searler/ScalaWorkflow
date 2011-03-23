@@ -69,6 +69,11 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
    check( SingleLineBalanceAsTwo(_))
   } 
 
+"oneLineBalanceAsTwoInitial" in { 
+   check( SingleLineBalanceAsTwoInitial(_,Bal(1000F)),Bal(1124.5F))
+   check( SingleLineBalanceAsTwoInitial(_,Bal(500F)),Bal(624.5F))
+  } 
+
  "twoLineBalance" in {
    check( TwoLineBalance(_),Bal(249F))
   } 

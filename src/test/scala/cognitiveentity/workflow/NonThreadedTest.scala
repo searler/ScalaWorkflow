@@ -35,4 +35,6 @@ object NonThreadedTest extends FlowsTest()(InlineProcessor.numDLookup,InlineProc
          case _ @ x=> fail(x toString)
       } 
    }
+
+  
 }
