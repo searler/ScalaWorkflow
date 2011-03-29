@@ -121,8 +121,8 @@ object Flow{
    /**
     * Defines the final value (and thus end) of the flow.
     */
-   def End[A](value:A):RPF =  new Result(value)
-   def Return[A](a: => A):Unit=>RPF = {x:Unit => new Result(a)}
+   def End[A](value:A):RPF =   Result(value)
+   def Return[A](a: => A):Unit=>RPF = {x:Unit =>  Result(a)}
 
    /**
     * Evaluate flows in parallel.
@@ -185,6 +185,7 @@ object Flow{
    /**
     * Evaluates the next flow with the first value resulting from
     * a split subflow.
+    * Used where the subflows are not known
     */
    def any[R](next:R=>RPF) = {
      var first = true
@@ -222,6 +223,7 @@ object Flow{
    /**
     * Evaluate n flows in parallel and feed 
     * first result to be received to the next flow
+    * Used where the flows are fixed.
     */
    def first[C](flows:(C=>RPF)=>RPF*)(next:C=>RPF):RPF = { 
      var found = false
