@@ -98,6 +98,10 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
    check(TwoLineBalanceSumVarInline(_),Bal(249F))
   } 
 
+"twoLineBalanceWithConstantSumVarInline" in { 
+   check(TwoLineBalanceWithConstantSumVarInline(_),Bal(135.5F))
+  } 
+
 "twoLineBalanceEfficient" in { 
    check(TwoLineBalanceEfficient(_),Bal(249.0F))
   } 

@@ -49,7 +49,7 @@ object SingleLineBalanceBuilder
   defined by the framework clients, this is a better trade-off.
  */
 object SingleLineBalance{
-    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]):RPF = {
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
        acctLook(pn){balLook(_)(End)}
     }
 }
@@ -116,6 +116,19 @@ object TwoLineBalanceSumVarInline{
        Flow.inject(sum)(
           c => acctLook(pn){balLook(_){c}} ,
           c => acctLook(pn){balLook(_){c}}
+       ) (End)
+    }
+}
+
+/**
+ * Two flow uses a constant value
+ */
+object TwoLineBalanceWithConstantSumVarInline{
+    def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
+       val  sum = {var total = Bal(0);b:Bal => total += b;total}
+       Flow.inject(sum)(
+          c => acctLook(pn){balLook(_){c}} ,
+          c => {balLook(Acct("gamma")){c}}
        ) (End)
     }
 }
@@ -366,6 +379,7 @@ object SingleLineBalanceTupledString{
 
 /**
  * Return the first result received from any service
+ * each leg is identical, which is not realistic
  */
 object SingleLineBalanceFirst{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
@@ -377,6 +391,7 @@ object SingleLineBalanceFirst{
 
 /**
  * Demonstrate chaining of first
+ * No actual parallelism
  */
 object SingleLineBalanceFirstChained{
     def apply(pn:Num)(implicit acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal]) = {
