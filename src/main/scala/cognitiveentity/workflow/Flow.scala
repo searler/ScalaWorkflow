@@ -18,13 +18,13 @@
  */
 package cognitiveentity.workflow
 
+
 /**
  * The CI is the "correlation id" that links the response returned from
  * a service with the PartialFunction that will process it.
  *
  */
-case class CI(id:Int){
-}
+case class CI(id:Int)
 
 /**
  * An RPF is a Recursive Partial Function

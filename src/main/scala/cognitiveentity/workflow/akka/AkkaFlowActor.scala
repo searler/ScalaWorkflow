@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow.akka
 
-import _root_.cognitiveentity.workflow.{RPF,CI,CorrelationAllocator,Result,Done,RPFCollection,FlowActor,Lookup}
+import cognitiveentity.workflow.{RPF,CI,CorrelationAllocator,Result,Done,RPFCollection,FlowActor,Lookup}
 
 /**
  * The AkkaFlowActor provides a Akka actor based implementation of
