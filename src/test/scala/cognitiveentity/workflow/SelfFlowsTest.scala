@@ -19,6 +19,9 @@
 package cognitiveentity.workflow
 
 import org.specs2.mutable._
+import ValueMaps._
+import org.junit.runner._
+import org.specs2.runner.JUnitRunner
 
 /**
  * Perform the lookup immediately and send the value to invoker.
@@ -32,7 +35,7 @@ import org.specs2.mutable._
     }
 }
 
- import ValueMaps._
+ 
 
  private object numLookup extends LookupSelf(numMap)
  private object acctLookup extends LookupSelf(acctMap)
@@ -42,6 +45,10 @@ import org.specs2.mutable._
 /**
  * Execute FlowTests, using ScalaActors and self contained Lookup implementations
  */
+  
+  
+
+  @RunWith(classOf[JUnitRunner])
 object SelfFlowsTest extends FlowsTest()(numLookup,acctLookup,balLookup,ppLookup) with CommonScalaFlowActorTest {
 
 //Add two tests to the collection already specified in FlowsTest

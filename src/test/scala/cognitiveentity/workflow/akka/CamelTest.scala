@@ -165,7 +165,7 @@ private object Gather {
    def get = synchronized {values toList}   
 }
 
-object CamelTest extends org.specs2.mutable.Specification {
+object CamelTest extends org.specs2.mutable.SpecificationWithJUnit {
   
    sequential
 

@@ -18,13 +18,17 @@
  */
 package cognitiveentity.workflow
 
+
+import org.junit.runner._
 import org.specs2.mutable._
+import org.specs2.runner.JUnitRunner
 
 /**
  * Execute tests defined in FlowsTest a single threaded manner, w/o any actors 
  *
  * Wires the lookups into FlowsTest 
  */
+@RunWith(classOf[JUnitRunner])
 object NonThreadedTest extends FlowsTest()(InlineProcessor.numDLookup,InlineProcessor.acctDLookup,InlineProcessor.balDLookup,InlineProcessor.ppDLookup)  {
   /**
   * Execute flow and check result against matcher

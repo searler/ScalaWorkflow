@@ -19,7 +19,9 @@
 package cognitiveentity.workflow
 
  import ValueMaps._
- import scala.actors.Actor._
+import scala.actors.Actor._
+import org.junit.runner._
+import org.specs2.runner.JUnitRunner
 
 /**
  * Delegate the lookup to the specified Scala Actor.
@@ -54,6 +56,7 @@ private class LookupActor[A,R](values:Map[A,R]) extends Lookup[A,R]{
   * Perform FlowsTest with Scala actors against an emulation of full actor based
   * external service
   */
+ @RunWith(classOf[JUnitRunner])
  object ScalaServiceActorFlowsTest extends FlowsTest()(numLookat,acctLookat,balLookat,ppLookat)  with CommonScalaFlowActorTest {
 
 }
