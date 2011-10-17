@@ -88,7 +88,7 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-  protected def chMatch[A,R](flow:A=>RPF,initial:A,m:org.specs.matcher.Matcher[R]) {
+  protected def chMatch[A,R](flow:A=>RPF,initial:A,m:org.specs2.matcher.Matcher[R]) : org.specs2.execute.Result = {
      val a = akka.actor.Actor.actorOf[SelfAkkaFlowActor]
     
      current set a //wires services actors to this instance
@@ -96,8 +96,12 @@ object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak
      val response = a !!Trigger( {() => flow(initial)})
      response match {
         case Some(b:R) => b must m
-        case _ @ x=> fail(x toString)
+        case _ @ x=> failure(x toString)
      }
+ 
+    
 
    }
+
+ 
 }

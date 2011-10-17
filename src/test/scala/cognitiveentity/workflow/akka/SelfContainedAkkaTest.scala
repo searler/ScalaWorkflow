@@ -83,7 +83,7 @@ private object SelfContainedLauncher {
 /**
  * Flows are accessed via FlowsSwitch, limiting the scope of testing.
  */
-object SelfContainedAkkaTest extends org.specs.Specification {
+object SelfContainedAkkaTest extends org.specs2.mutable.Specification {
     
     "num" in  {
      Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(SelfContainedLauncher(123))
@@ -93,9 +93,11 @@ object SelfContainedAkkaTest extends org.specs.Specification {
      Some(Bal(124.5F))  must beEqualTo(SelfContainedLauncher(Num("124-555-1234")))
     }
 
-   doAfterSpec {
+   step {
       akka.actor.Actor.registry.shutdownAll
+      success
     }
+
 }
 
 

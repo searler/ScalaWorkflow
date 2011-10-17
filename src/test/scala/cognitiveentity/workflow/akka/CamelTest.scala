@@ -165,9 +165,11 @@ private object Gather {
    def get = synchronized {values toList}   
 }
 
-object CamelTest extends org.specs.Specification {
-   
-   doBeforeSpec {
+object CamelTest extends org.specs2.mutable.Specification {
+  
+   sequential
+
+   step {
      CamelContextManager.init
      val context = CamelContextManager.mandatoryContext
 
@@ -185,6 +187,8 @@ object CamelTest extends org.specs.Specification {
      context.addRoutes(new RouteBuilder{"seda:gather".bean(Gather)})
 
      startCamelService
+    
+    success
    }
 
    /**
@@ -207,7 +211,7 @@ object CamelTest extends org.specs.Specification {
          akka.actor.Actor.spawn{send(cognitiveentity.workflow.SumBalances(123))}
      Gather.await
      cnt must beEqualTo(Gather.get.length) 
-     Gather.get.foreach { Bal(125.5F) must beEqualTo(_) }
+     Gather.get.map { Bal(125.5F) must beEqualTo(_) }
     }
     
     /**
@@ -231,7 +235,7 @@ object CamelTest extends org.specs.Specification {
          akka.actor.Actor.spawn{send(123)}
      Gather.await
      cnt must beEqualTo(Gather.get.length) 
-     Gather.get.foreach { List(Num("124-555-1234"), Num("333-555-1234")) must beEqualTo(_)    }
+     Gather.get.map { List(Num("124-555-1234"), Num("333-555-1234")) must beEqualTo(_)    }
     }
 
     /**
@@ -260,7 +264,7 @@ object CamelTest extends org.specs.Specification {
      */
    "manySingleThread" in {
      val template = CamelContextManager.mandatoryContext.createProducerTemplate
-     for(i<-0 to 100)
+     for(i<-0 to 100) yield
        Some(Bal(124.5F))  must beEqualTo(template.requestBody("seda:request",Num("124-555-1234")))
    }
 
@@ -290,8 +294,10 @@ object CamelTest extends org.specs.Specification {
     /**
      * Shutdown
      */ 
-    doAfterSpec {
+    step {
       stopCamelService
       akka.actor.Actor.registry.shutdownAll
+      success
     }
+
 }

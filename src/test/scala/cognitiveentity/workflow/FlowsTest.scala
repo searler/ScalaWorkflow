@@ -18,26 +18,27 @@
  */
 package cognitiveentity.workflow
 
-import org.specs._
+import org.specs2.mutable._
 
 /**
  * Collections of tests of Flows, illustrating how they are used
  */
 abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[Num,Acct],  balLook:Lookup[Acct,Bal], ppLook:Lookup[Acct,PP]) extends Specification {
 
+sequential
 
  /**
   * Common test code for a flow that accepts an A and
   * uses Matcher
   */ 
-  protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) 
+  protected def chMatch[A,R](flow:A=>RPF,n:A,m:org.specs2.matcher.Matcher[R]): org.specs2.execute.Result
 
 
  /**
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-  protected def ch[A,R](flow:A=>RPF,n:A,expected:R) = chMatch(flow,n,new matcher.BeEqualTo(expected))
+  protected def ch[A,R](flow:A=>RPF,n:A,expected:R) = chMatch(flow,n,new org.specs2.matcher.BeEqualTo(expected))
 
  /**
   * Test a flow that takes Num("124-555-1234") and returns an R
@@ -51,6 +52,11 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
  protected def check(flow:Num=>RPF,expected:Bal=Bal(124.5F)) = chk(flow,expected)
 
 
+"oneLineBalanceOrEnd" in { 
+   check( SingleLineBalanceOrEnd(_),Bal(11F))
+  } 
+
+
 
   "oneLineBalance" in {
    check(SingleLineBalance(_))
@@ -61,9 +67,6 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
   check( SingleLineBalanceAsPartial(_))
  } 
 
-"oneLineBalanceOrEnd" in { 
-   check( SingleLineBalanceOrEnd(_),Bal(11F))
-  } 
 
  "oneLineBalanceAsTwo" in { 
    check( SingleLineBalanceAsTwo(_))
@@ -239,6 +242,9 @@ abstract class FlowsTest(implicit numLook:Lookup[Int,List[Num]],acctLook:Lookup[
   }
   
  
+
 }
+
+
 
 }

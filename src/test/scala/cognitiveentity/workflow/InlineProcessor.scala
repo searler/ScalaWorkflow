@@ -89,11 +89,13 @@ object InlineProcessor {
       val processor = new InlineProcessor
       processor receive Trigger(flow(initial))
 
+
       while(processor.finalResult == null){
          val copy = toBe
          toBe = Nil
          copy foreach {processor receive _}
       }
+
     processor.finalResult
   }
 }

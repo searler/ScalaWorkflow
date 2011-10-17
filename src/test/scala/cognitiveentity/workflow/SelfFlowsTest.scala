@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow
 
-import org.specs._
+import org.specs2.mutable._
 
 /**
  * Perform the lookup immediately and send the value to invoker.

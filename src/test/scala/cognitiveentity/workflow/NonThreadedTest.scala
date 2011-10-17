@@ -18,7 +18,7 @@
  */
 package cognitiveentity.workflow
 
-import org.specs._
+import org.specs2.mutable._
 
 /**
  * Execute tests defined in FlowsTest a single threaded manner, w/o any actors 
@@ -29,10 +29,10 @@ object NonThreadedTest extends FlowsTest()(InlineProcessor.numDLookup,InlineProc
   /**
   * Execute flow and check result against matcher
   */ 
-   protected def chMatch[A,R](flow:A=>RPF,initial:A,expected:matcher.Matcher[R]) {
+   protected def chMatch[A,R](flow:A=>RPF,initial:A,expected:org.specs2.matcher.Matcher[R]) : org.specs2.execute.Result = {
       InlineProcessor(flow,initial) match {
          case r:R => r must expected
-         case _ @ x=> fail(x toString)
+         case _ @ x=> failure(x toString)
       } 
    }
 

@@ -19,7 +19,7 @@
  */
 package cognitiveentity.workflow
 
-import org.specs._
+import org.specs2.mutable._
 
 /**
  * A trait to support Specs testing with instances of
@@ -33,12 +33,12 @@ import scala.actors.Actor._
   * Common test code for a flow that accepts an A and
   * returns an R
   */ 
-protected def chMatch[A,R](flow:A=>RPF,n:A,m:matcher.Matcher[R]) {
+protected def chMatch[A,R](flow:A=>RPF,n:A,m:org.specs2.matcher.Matcher[R]): org.specs2.execute.Result= {
     ScalaFlowActor(flow,n)
     receiveWithin(1000L){
        case b:R => b  must m
-       case scala.actors.TIMEOUT => fail("timeout")
-       case _ @ x=> fail(x toString)
+       case scala.actors.TIMEOUT => failure("timeout")
+       case _ @ x=> failure(x toString)
       }
  }
 }
