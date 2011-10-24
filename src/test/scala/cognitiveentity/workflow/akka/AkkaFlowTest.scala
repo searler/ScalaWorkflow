@@ -28,8 +28,6 @@ package cognitiveentity.workflow.akka
  import cognitiveentity.workflow.{CI,Lookup,Bal,Acct,Num,RPF,CorrelationAllocator,FlowsTest,Trigger}
 
  import cognitiveentity.workflow.ValueMaps._
- 
-
 
 /**
  * Unlike Scala, akka actors do not attach their identity to the current thread.
@@ -84,7 +82,6 @@ private object ppLookak extends LookupActor(prepaidMap)
  * Perform FlowsTest, using akka actors and a minimalist service
  * actor implementation.
  */
-
 object AkkaFlowsTest extends FlowsTest()(numLookak,acctLookak,balLookak,ppLookak) {
 
  /**

@@ -83,7 +83,7 @@ private object SelfContainedLauncher {
 /**
  * Flows are accessed via FlowsSwitch, limiting the scope of testing.
  */
-object SelfContainedAkkaTest extends org.specs2.mutable.SpecificationWithJUnit {
+object SelfContainedAkkaTest extends org.specs2.mutable.Specification {
     
     "num" in  {
      Some(List(Num("124-555-1234"),Num("333-555-1234")))  must beEqualTo(SelfContainedLauncher(123))
